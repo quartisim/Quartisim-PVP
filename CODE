@@ -24,343 +24,149 @@
 body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow:hidden;}
 body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:9999;}
 
-/* SCREENS */
 .screen{display:none;position:fixed;inset:0;overflow-y:auto;}
 .screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;}
 
-/* ===== MAIN MENU ===== */
 #menu-screen{background:radial-gradient(ellipse at 50% 30%,#1a0808 0%,#0a0a0f 70%);}
 .menu-bg-particles{position:fixed;inset:0;pointer-events:none;z-index:0;}
 .particle-orb{position:absolute;border-radius:50%;animation:floatOrb linear infinite;}
 @keyframes floatOrb{0%{transform:translateY(100vh) scale(0);opacity:0;}10%{opacity:1;}90%{opacity:0.5;}100%{transform:translateY(-100px) scale(1.5);opacity:0;}}
 .menu-content{position:relative;z-index:1;text-align:center;padding:20px;}
-.game-title{font-family:'VT323',monospace;font-size:clamp(3rem,8vw,6rem);color:var(--accent);text-shadow:0 0 30px rgba(232,65,75,0.8),0 0 80px rgba(232,65,75,0.3);letter-spacing:0.05em;line-height:1.1;}
+.game-title{font-family:'VT323',monospace;font-size:clamp(3rem,8vw,6rem);color:var(--accent);text-shadow:0 0 30px rgba(232,65,75,0.8),0 0 80px rgba(232,65,75,0.3);letter-spacing:0.05em;line-height:1;}
 .game-subtitle{font-size:1rem;letter-spacing:0.5em;color:var(--muted);margin-top:-8px;margin-bottom:40px;text-transform:uppercase;}
-.menu-btn{display:block;width:280px;padding:14px 30px;margin:10px auto;background:transparent;border:2px solid var(--accent);color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:1.2rem;position:relative;cursor:pointer;letter-spacing:0.15em;text-transform:uppercase;transition:all 0.2s;overflow:hidden;}
-.menu-btn::before{content:'';position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transition:transform 0.2s;transform-origin:left;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0 100%);z-index:0;}
-.menu-btn:hover{color:#000;text-shadow:none;}
+.menu-btn{display:block;width:280px;padding:14px 30px;margin:10px auto;background:transparent;border:2px solid var(--accent);color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:1.2rem;cursor:pointer;position:relative;letter-spacing:0.1em;text-transform:uppercase;overflow:hidden;}
+.menu-btn::before{content:'';position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transition:transform 0.2s;transform-origin:left;}
+.menu-btn:hover{color:#000;}
 .menu-btn:hover::before{transform:scaleX(1);}
 .menu-btn span{position:relative;z-index:1;}
 .menu-btn.blue{border-color:var(--blue);color:var(--blue);}
 .menu-btn.blue::before{background:var(--blue);}
-.menu-btn.green{border-color:var(--green);color:var(--green);}
-.menu-btn.green::before{background:var(--green);}
 .version-tag{font-size:0.75rem;color:var(--muted);margin-top:30px;letter-spacing:0.3em;}
 
-/* ===== KIT BUILDER ===== */
-#kit-screen{background:var(--bg);padding:20px;align-items:stretch;justify-content:flex-start;}
-.kit-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:1100px;margin:0 auto;padding:20px;}
+#kit-screen{background:var(--bg);padding:20px;}
+.kit-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:1100px;margin:0 auto;}
 .kit-panel{background:var(--panel);border:1px solid var(--border);padding:20px;}
-.panel-title{font-family:'VT323',monospace;font-size:1.8rem;color:var(--accent);letter-spacing:0.15em;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:16px;}
+.panel-title{font-family:'VT323',monospace;font-size:1.8rem;color:var(--accent);}
 .items-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-.item-card{background:#0d0d15;border:1px solid var(--border);padding:10px 8px;cursor:pointer;transition:all 0.15s;text-align:center;position:relative;}
-.item-card:hover{border-color:var(--accent);background:rgba(232,65,75,0.08);}
-.item-card.selected{border-color:var(--green);background:rgba(74,255,106,0.08);}
-.item-card.in-kit{border-color:var(--accent2);}
-.item-icon{font-size:1.8rem;display:block;margin-bottom:4px;}
-.item-name{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);}
-.item-stat{font-size:0.6rem;color:var(--muted);}
-.item-rarity{position:absolute;top:3px;right:4px;font-size:0.5rem;font-weight:700;letter-spacing:0.1em;}
-.rarity-s{color:var(--cyan);}
-.rarity-a{color:var(--purple);}
-.rarity-b{color:var(--accent2);}
-.rarity-c{color:#aaa;}
+.item-card{background:#0d0d15;border:1px solid var(--border);padding:10px;cursor:pointer;transition:all 0.15s;text-align:center;}
+.item-card:hover{border-color:var(--accent);}
+.item-icon{font-size:1.8rem;}
+.item-name{font-size:0.65rem;font-weight:700;text-transform:uppercase;}
 
-.kit-slots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;}
-.kit-slot{background:#0a0a12;border:2px dashed #333;height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;position:relative;}
-.kit-slot.filled{border-style:solid;border-color:var(--accent2);}
-.kit-slot .slot-icon{font-size:1.6rem;}
-.kit-slot .slot-name{font-size:0.5rem;color:var(--muted);text-align:center;margin-top:2px;}
-.kit-slot .remove-x{position:absolute;top:2px;right:4px;font-size:0.6rem;color:var(--accent);opacity:0;transition:opacity 0.15s;}
-.kit-slot:hover .remove-x{opacity:1;}
-
-.settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a1a25;}
-.settings-label{font-weight:700;font-size:0.9rem;letter-spacing:0.1em;text-transform:uppercase;}
-.settings-val{font-size:0.85rem;color:var(--muted);}
-.seg-ctrl{display:flex;gap:4px;}
-.seg-btn{padding:6px 14px;background:transparent;border:1px solid #333;color:#666;font-family:'Rajdhani',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.1em;}
-.seg-btn.active{background:var(--accent);border-color:var(--accent);color:#000;}
-.seg-btn.blue.active{background:var(--blue);border-color:var(--blue);}
-.seg-btn.green.active{background:var(--green);border-color:var(--green);}
-
-/* ===== ARENA / GAME SCREEN ===== */
 #game-screen{background:var(--bg);padding:0;}
-#gameCanvas{display:block;cursor:crosshair;}
+#gameCanvas{display:block;width:100%;height:100%;cursor:crosshair;}
 #game-hud{position:fixed;inset:0;pointer-events:none;z-index:100;}
 
-/* Health bars */
-.hud-health-area{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;}
+.hud-health-area{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);}
 .health-bar-wrap{width:300px;}
-.hbar-label{font-size:0.65rem;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase;margin-bottom:3px;display:flex;justify-content:space-between;}
-.hbar{height:14px;background:#111;border:1px solid #333;border-radius:2px;overflow:hidden;position:relative;}
-.hbar-fill{height:100%;transition:width 0.2s;border-radius:1px;}
-.hbar-fill.player{background:linear-gradient(90deg,#e84040,#ff6060);}
-.hbar-fill.enemy{background:linear-gradient(90deg,#40e860,#60ff80);}
-.hbar-fill.shield{background:linear-gradient(90deg,var(--blue),var(--cyan));}
+.hbar{height:14px;background:#111;border:1px solid #333;border-radius:2px;overflow:hidden;}
+.hbar-fill{height:100%;background:linear-gradient(90deg,#e84040,#ff6060);}
 
-/* Hotbar */
-.hotbar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:rgba(0,0,0,0.7);border:1px solid #333;padding:5px;border-radius:4px;}
-.hslot{width:56px;height:56px;background:#0a0a12;border:2px solid #333;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;transition:border-color 0.1s;font-weight:700;}
+.hotbar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:rgba(0,0,0,0.7);border:1px solid #333;padding:5px;}
+.hslot{width:56px;height:56px;background:#0a0a12;border:2px solid #333;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .hslot.active{border-color:var(--accent);}
-.hslot .hicon{font-size:1.5rem;}
-.hslot .hname{font-size:0.42rem;color:#aaa;text-align:center;letter-spacing:0.05em;text-transform:uppercase;margin-top:1px;}
-.hslot .hkey{position:absolute;top:2px;left:4px;font-size:0.5rem;color:#555;}
-.hslot .hcooldown{position:absolute;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#fff;border-radius:2px;}
+.hicon{font-size:1.5rem;}
 
-/* Combo/kill feed */
-.killfeed{position:absolute;top:16px;right:16px;display:flex;flex-direction:column;gap:4px;align-items:flex-end;}
-.kf-entry{background:rgba(0,0,0,0.7);border-left:3px solid var(--accent);padding:4px 10px;font-size:0.75rem;animation:kfSlide 0.3s ease,kfFade 0.5s ease 2.5s forwards;}
-@keyframes kfSlide{from{transform:translateX(60px);opacity:0;}to{transform:translateX(0);opacity:1;}}
-@keyframes kfFade{to{opacity:0;}}
-.combo-display{position:absolute;top:80px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;}
-.combo-num{font-family:'VT323',monospace;font-size:3rem;color:var(--accent2);text-shadow:0 0 20px rgba(255,140,0,0.8);animation:comboPop 0.2s ease;}
-@keyframes comboPop{from{transform:scale(1.5);}to{transform:scale(1);}}
-.combo-label{font-size:0.7rem;letter-spacing:0.4em;color:var(--accent2);text-transform:uppercase;}
+.killfeed{position:absolute;top:16px;right:16px;}
+.mode-badge{position:absolute;top:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);border:1px solid var(--accent);padding:4px 20px;font-size:0.75rem;}
 
-/* Damage numbers */
-.dmg-num{position:absolute;font-family:'VT323',monospace;font-size:1.4rem;font-weight:700;pointer-events:none;animation:dmgFloat 1s ease-out forwards;z-index:200;}
-@keyframes dmgFloat{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-60px) scale(0.7);opacity:0;}}
-
-/* Mode indicator */
-.mode-badge{position:absolute;top:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);border:1px solid var(--accent);padding:4px 20px;font-size:0.75rem;font-weight:700;letter-spacing:0.15em;color:var(--accent);}
-
-/* Status effects */
-.status-effects{position:absolute;top:16px;left:16px;display:flex;gap:6px;}
-.se-badge{padding:3px 8px;border-radius:2px;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;border:1px solid;}
-
-/* Crystals on field */
-.crystal-indicator{position:absolute;pointer-events:none;text-align:center;}
-
-/* ===== RESULTS ===== */
-#result-screen{background:radial-gradient(ellipse at 50% 0%,#1a0808,#0a0a0f 60%);}
-.result-content{text-align:center;padding:40px;}
-.result-title{font-family:'VT323',monospace;font-size:5rem;margin-bottom:10px;}
-.result-title.win{color:var(--gold);text-shadow:0 0 40px rgba(255,215,0,0.6);}
-.result-title.loss{color:var(--accent);text-shadow:0 0 40px rgba(232,65,75,0.6);}
-.result-stats{background:var(--panel);border:1px solid var(--border);padding:24px 40px;margin:24px auto;max-width:500px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.stat-item{text-align:center;}
-.stat-val{font-family:'VT323',monospace;font-size:2.5rem;color:var(--accent2);}
-.stat-label{font-size:0.7rem;letter-spacing:0.3em;color:var(--muted);text-transform:uppercase;}
-
-/* UTIL */
-.back-btn{background:transparent;border:1px solid #333;color:#666;font-family:'Rajdhani',sans-serif;font-size:0.85rem;font-weight:700;padding:8px 20px;cursor:pointer;letter-spacing:0.2em;text-transform:uppercase;transition:all 0.15s;pointer-events:all;}
-.back-btn:hover{border-color:var(--accent);color:var(--accent);}
-.start-fight-btn{display:block;width:100%;padding:16px;margin-top:20px;background:var(--accent);border:none;color:#000;font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
-.start-fight-btn:hover{background:#ff2030;transform:scale(1.02);}
-.kit-name-input{background:#0a0a12;border:1px solid var(--border);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1rem;padding:8px 12px;width:100%;margin-bottom:12px;outline:none;}
-.kit-name-input:focus{border-color:var(--accent);}
-
-/* TOOLTIP */
-.tooltip{position:fixed;background:#0d0d18;border:1px solid var(--accent);padding:8px 12px;font-size:0.75rem;pointer-events:none;z-index:9000;max-width:200px;display:none;}
-.tooltip.show{display:block;}
-.tt-name{font-weight:700;color:var(--text);margin-bottom:4px;font-size:0.85rem;}
-.tt-stats{color:var(--muted);}
-.tt-rarity{font-size:0.6rem;font-weight:700;letter-spacing:0.2em;}
-
-/* Animations */
-@keyframes shakeX{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
-.shake{animation:shakeX 0.3s ease;}
-
-/* Crosshair */
 #crosshair{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:20px;height:20px;pointer-events:none;}
 #crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(255,255,255,0.8);}
 #crosshair::before{width:2px;height:100%;left:50%;transform:translateX(-50%);}
 #crosshair::after{height:2px;width:100%;top:50%;transform:translateY(-50%);}
 
-/* Ping / latency fake */
-.ping-badge{position:absolute;bottom:80px;right:16px;font-size:0.65rem;color:#4aff6a;font-family:'VT323',monospace;}
+.ping-badge{position:absolute;bottom:80px;right:16px;font-size:0.65rem;color:#4aff6a;}
+
+.back-btn{background:transparent;border:1px solid #333;color:#666;padding:8px 20px;cursor:pointer;font-family:'Rajdhani',sans-serif;}
+.start-fight-btn{width:100%;padding:16px;background:var(--accent);border:none;color:#000;cursor:pointer;font-family:'Rajdhani',sans-serif;}
+
+#player-hand{position:fixed;font-size:2rem;pointer-events:none;z-index:200;user-select:none;}
 </style>
 </head>
 <body>
 
-<!-- TOOLTIP -->
-<div class="tooltip" id="tooltip">
-  <div class="tt-rarity" id="tt-rarity"></div>
-  <div class="tt-name" id="tt-name"></div>
-  <div class="tt-stats" id="tt-stats"></div>
+<div class="tooltip" id="tooltip" style="display:none;position:fixed;background:#0d0d18;border:1px solid var(--accent);padding:8px;z-index:9000;max-width:200px;">
+  <div id="tt-name"></div>
 </div>
 
-<!-- ===== MAIN MENU ===== -->
 <div class="screen active" id="menu-screen">
   <div class="menu-bg-particles" id="bg-particles"></div>
   <div class="menu-content">
     <div class="game-title">QUARTISIM'S</div>
-    <div class="game-title" style="font-size:clamp(2rem,6vw,4.5rem);color:#fff;text-shadow:0 0 20px rgba(255,255,255,0.3);">PVP</div>
+    <div class="game-title" style="font-size:clamp(2rem,6vw,4.5rem);color:#fff;">PVP</div>
     <div class="game-subtitle">No rules. Just combat.</div>
     <button class="menu-btn" onclick="showScreen('kit-screen')"><span>⚔ Build Kit & Fight</span></button>
     <button class="menu-btn blue" onclick="quickFight()"><span>⚡ Quick Fight</span></button>
-    <div class="version-tag">v1.0 — 1.8 · Crystal · Mace · 1.21 PVP</div>
+    <div class="version-tag">v1.0 — 1.8 PVP</div>
   </div>
 </div>
 
-<!-- ===== KIT BUILDER ===== -->
-<div class="screen" id="kit-screen" style="justify-content:flex-start;padding-top:20px;">
-  <div style="width:100%;max-width:1100px;margin:0 auto;padding:0 20px;">
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
-      <button class="back-btn" onclick="showScreen('menu-screen')">← Back</button>
-      <h2 style="font-family:'VT323',monospace;font-size:2rem;color:var(--accent);letter-spacing:0.1em;">KIT BUILDER</h2>
-    </div>
+<div class="screen" id="kit-screen">
+  <div style="width:100%;max-width:1100px;margin:0 auto;padding:20px;">
+    <button class="back-btn" onclick="showScreen('menu-screen')">← Back</button>
+    <h2 style="font-family:'VT323',monospace;font-size:2rem;color:var(--accent);">KIT BUILDER</h2>
   </div>
   <div class="kit-layout">
-    <!-- LEFT: items -->
     <div>
       <div class="kit-panel">
-        <div class="panel-title">🗡 Available Items</div>
+        <div class="panel-title">🗡 Items</div>
         <div class="items-grid" id="items-grid"></div>
       </div>
     </div>
-    <!-- RIGHT: kit + settings -->
-    <div style="display:flex;flex-direction:column;gap:16px;">
+    <div>
       <div class="kit-panel">
-        <div class="panel-title">🎒 Your Kit <span style="font-size:0.9rem;color:var(--muted);">(max 9 slots)</span></div>
-        <input class="kit-name-input" id="kit-name" placeholder="Kit name (e.g. Crystal God)" maxlength="24">
-        <div class="kit-slots" id="kit-slots"></div>
-        <div id="kit-warning" style="font-size:0.75rem;color:var(--accent);min-height:18px;"></div>
+        <div class="panel-title">🎒 Your Kit</div>
+        <div id="kit-slots"></div>
       </div>
-      <div class="kit-panel">
-        <div class="panel-title">⚙ Match Settings</div>
-        <div class="settings-row">
-          <div class="settings-label">PVP Mode</div>
-          <div class="seg-ctrl" id="pvp-mode-ctrl">
-            <button class="seg-btn active" data-mode="1.8" onclick="setMode('pvp-mode-ctrl',this,'1.8')">1.8</button>
-            <button class="seg-btn" data-mode="crystal" onclick="setMode('pvp-mode-ctrl',this,'crystal')">Crystal</button>
-            <button class="seg-btn" data-mode="mace" onclick="setMode('pvp-mode-ctrl',this,'mace')">Mace</button>
-            <button class="seg-btn" data-mode="1.21" onclick="setMode('pvp-mode-ctrl',this,'1.21')">1.21</button>
-          </div>
-        </div>
-        <div class="settings-row">
-          <div class="settings-label">Bot Difficulty</div>
-          <div class="seg-ctrl" id="diff-ctrl">
-            <button class="seg-btn green active" data-val="easy" onclick="setMode('diff-ctrl',this,'easy')">Easy</button>
-            <button class="seg-btn blue" data-val="medium" onclick="setMode('diff-ctrl',this,'medium')">Medium</button>
-            <button class="seg-btn" data-val="hard" onclick="setMode('diff-ctrl',this,'hard')">Hard</button>
-            <button class="seg-btn" data-val="insane" onclick="setMode('diff-ctrl',this,'insane')" style="border-color:var(--purple);color:var(--purple);">Insane</button>
-          </div>
-        </div>
-        <div class="settings-row">
-          <div class="settings-label">Bot Count</div>
-          <div class="seg-ctrl" id="bots-ctrl">
-            <button class="seg-btn active" data-val="1" onclick="setMode('bots-ctrl',this,'1')">1v1</button>
-            <button class="seg-btn" data-val="2" onclick="setMode('bots-ctrl',this,'2')">1v2</button>
-            <button class="seg-btn" data-val="3" onclick="setMode('bots-ctrl',this,'3')">1v3</button>
-          </div>
-        </div>
-        <div class="settings-row">
-          <div class="settings-label">Arena</div>
-          <div class="seg-ctrl" id="arena-ctrl">
-            <button class="seg-btn active" data-val="flat" onclick="setMode('arena-ctrl',this,'flat')">Flat</button>
-            <button class="seg-btn" data-val="pillars" onclick="setMode('arena-ctrl',this,'pillars')">Pillars</button>
-            <button class="seg-btn" data-val="sky" onclick="setMode('arena-ctrl',this,'sky')">Sky</button>
-          </div>
-        </div>
-        <button class="start-fight-btn" onclick="startFight()">START FIGHT →</button>
-      </div>
+      <button class="start-fight-btn" onclick="startFight()">START FIGHT</button>
     </div>
   </div>
 </div>
 
-<!-- ===== GAME SCREEN ===== -->
 <div class="screen" id="game-screen">
   <canvas id="gameCanvas"></canvas>
+  <div id="player-hand">👊</div>
   <div id="game-hud">
     <div id="crosshair"></div>
-    <div class="mode-badge" id="mode-badge">1.8 PVP</div>
+    <div class="mode-badge">1.8 PVP</div>
     <div class="killfeed" id="killfeed"></div>
-    <div class="combo-display" id="combo-display" style="display:none;"></div>
     <div class="hud-health-area">
       <div class="health-bar-wrap">
-        <div class="hbar-label"><span>YOU</span><span id="p-hp-text">20/20</span></div>
-        <div class="hbar"><div class="hbar-fill player" id="p-hp-bar" style="width:100%"></div></div>
-      </div>
-      <div class="health-bar-wrap" id="shield-bar-wrap" style="display:none;">
-        <div class="hbar-label"><span>🛡 SHIELD</span><span id="p-shield-text">0</span></div>
-        <div class="hbar"><div class="hbar-fill shield" id="p-shield-bar" style="width:0%"></div></div>
+        <div class="hbar"><div class="hbar-fill" id="p-hp-bar" style="width:100%"></div></div>
+        <div style="font-size:0.7rem;color:#aaa;text-align:right;"><span id="p-hp-text">20/20</span></div>
       </div>
     </div>
     <div class="hotbar" id="hotbar"></div>
-    <div class="status-effects" id="status-effects"></div>
-    <div class="ping-badge" id="ping-badge">⬀ 4ms</div>
-    <button style="position:absolute;top:16px;left:16px;pointer-events:all;" class="back-btn" onclick="endGame()">✕ Quit</button>
-  </div>
-</div>
-
-<!-- ===== RESULT SCREEN ===== -->
-<div class="screen" id="result-screen">
-  <div class="result-content">
-    <div class="result-title" id="result-title">YOU WIN</div>
-    <div style="font-size:0.9rem;letter-spacing:0.3em;color:var(--muted);margin-bottom:20px;" id="result-sub"></div>
-    <div class="result-stats" id="result-stats"></div>
-    <button class="menu-btn" style="margin-top:20px;" onclick="showScreen('kit-screen')"><span>↩ Rematch Settings</span></button>
-    <button class="menu-btn blue" style="margin-top:0;" onclick="showScreen('menu-screen')"><span>⌂ Main Menu</span></button>
+    <div class="ping-badge">⬀ 4ms</div>
+    <button style="position:absolute;top:16px;left:16px;" class="back-btn" onclick="endGame()">✕ Quit</button>
   </div>
 </div>
 
 <script>
 // ============================================================
-//  QUARTISIM'S PVP — Full game engine (FIXED)
+//  QUARTISIM'S PVP — Working Version
 // ============================================================
 
-// ---- ITEM DATABASE ----
 const ITEMS = [
-  // SWORDS
-  {id:'sword_wood',  name:'Wood Sword',   icon:'🗡',  cat:'sword', dmg:4,  aspd:0.6, rarity:'C', desc:'Base damage 4. Slow speed.',           special:null},
-  {id:'sword_stone', name:'Stone Sword',  icon:'⚔',  cat:'sword', dmg:5,  aspd:0.65,rarity:'C', desc:'Reliable starter sword.',               special:null},
-  {id:'sword_iron',  name:'Iron Sword',   icon:'🔪',  cat:'sword', dmg:6,  aspd:0.7, rarity:'B', desc:'Standard PVP sword.',                   special:null},
-  {id:'sword_dia',   name:'Diamond Sword',icon:'💎',  cat:'sword', dmg:7,  aspd:0.75,rarity:'A', desc:'High damage. Classic 1.8 weapon.',      special:null},
-  {id:'sword_netherite',name:'Netherite Sw',icon:'🌑',cat:'sword',dmg:8,  aspd:0.78,rarity:'S', desc:'Best sword. Knockback resist.',         special:'kb_resist'},
-  // AXES
-  {id:'axe_iron',    name:'Iron Axe',     icon:'🪓',  cat:'axe',   dmg:9,  aspd:0.4, rarity:'B', desc:'High damage, slow. Disables shields.',  special:'shield_break'},
-  {id:'axe_dia',     name:'Diamond Axe',  icon:'💠',  cat:'axe',   dmg:10, aspd:0.45,rarity:'A', desc:'Massive damage. Shield destroyer.',      special:'shield_break'},
-  {id:'axe_neth',    name:'Netherite Axe',icon:'🔱',  cat:'axe',   dmg:12, aspd:0.5, rarity:'S', desc:'The axe. Shreds shields instantly.',    special:'shield_break'},
-  // MACE
-  {id:'mace',        name:'Mace',         icon:'🏛',  cat:'mace',  dmg:6,  aspd:0.5, rarity:'S', desc:'Fall damage bonus: +2 per block fallen. Smash attack.',special:'fall_bonus'},
-  // BOW
-  {id:'bow',         name:'Bow',          icon:'🏹',  cat:'ranged',dmg:9,  aspd:0.3, rarity:'B', desc:'Charge up for max damage. 10 arrows.',  special:'charge'},
-  {id:'crossbow',    name:'Crossbow',     icon:'🎯',  cat:'ranged',dmg:11, aspd:0.2, rarity:'A', desc:'Pre-loadable. High burst damage.',       special:'preload'},
-  // CRYSTALS
-  {id:'crystal',     name:'End Crystal',  icon:'🔮',  cat:'crystal',dmg:0, aspd:0,   rarity:'S', desc:'Place & explode. 10 crystals.',          special:'explode'},
-  // POTIONS
-  {id:'pot_strength',name:'Strength Pot', icon:'⚗',  cat:'potion',dmg:0,  aspd:0,   rarity:'A', desc:'+3 damage for 15s. Splash.',             special:'str_buff'},
-  {id:'pot_speed',   name:'Speed Pot',    icon:'🌀',  cat:'potion',dmg:0,  aspd:0,   rarity:'A', desc:'+30% move speed for 12s.',               special:'spd_buff'},
-  {id:'pot_heal',    name:'Healing Pot',  icon:'🧪',  cat:'potion',dmg:0,  aspd:0,   rarity:'B', desc:'Instantly restore 8 HP.',                special:'heal'},
-  {id:'pot_invis',   name:'Invis Pot',    icon:'👻',  cat:'potion',dmg:0,  aspd:0,   rarity:'A', desc:'Invisible for 8 seconds.',               special:'invis'},
-  // ARMOR ITEMS
-  {id:'shield',      name:'Shield',       icon:'🛡',  cat:'armor', dmg:0,  aspd:0,   rarity:'B', desc:'Block 80% damage while held. Axes break it.',special:'block'},
-  {id:'totem',       name:'Totem of Undying',icon:'🗿',cat:'armor',dmg:0, aspd:0,   rarity:'S', desc:'Auto-activates at 0 HP. 1-time use.',    special:'totem'},
-  // SPECIAL
-  {id:'fireball',    name:'Fireball',     icon:'🔥',  cat:'special',dmg:5, aspd:0.3, rarity:'A', desc:'Sets target ablaze. 3 fireballs.',       special:'fire'},
-  {id:'flint',       name:'Flint & Steel',icon:'✳',  cat:'special',dmg:0, aspd:0,   rarity:'B', desc:'Ignite ground. Area denial.',            special:'ignite'},
-  {id:'trident',     name:'Trident',      icon:'🔱',  cat:'ranged',dmg:9,  aspd:0.35,rarity:'A', desc:'Throwable. Returns after throw.',         special:'riptide'},
-  {id:'ender_pearl', name:'Ender Pearl',  icon:'🟢',  cat:'special',dmg:0, aspd:0,   rarity:'B', desc:'Teleport to target location.',           special:'teleport'},
-  {id:'fishing_rod', name:'Fishing Rod',  icon:'🎣',  cat:'special',dmg:0, aspd:0,   rarity:'B', desc:'Hook + drag enemy. Classic 1.8 utility.',special:'hook'},
-  {id:'lava_bucket', name:'Lava Bucket',  icon:'🌋',  cat:'special',dmg:0, aspd:0,   rarity:'A', desc:'Place lava. Melts enemies over time.',   special:'lava_place'},
+  {id:'sword_dia',   name:'Diamond Sword',icon:'💎', dmg:7, aspd:0.75},
+  {id:'bow',         name:'Bow',          icon:'🏹', dmg:9, aspd:0.3},
+  {id:'pot_heal',    name:'Healing Pot',  icon:'🧪', dmg:0, aspd:0},
+  {id:'shield',      name:'Shield',       icon:'🛡', dmg:0, aspd:0},
+  {id:'ender_pearl', name:'Ender Pearl',  icon:'🟢', dmg:0, aspd:0},
+  {id:'crystal',     name:'End Crystal',  icon:'🔮', dmg:0, aspd:0},
+  {id:'totem',       name:'Totem',        icon:'🗿', dmg:0, aspd:0},
+  {id:'mace',        name:'Mace',         icon:'🏛', dmg:6, aspd:0.5},
 ];
 
-// ---- GAME STATE ----
-let gameState = {
-  pvpMode: '1.8',
-  difficulty: 'easy',
-  botCount: 1,
-  arena: 'flat',
-  playerKit: [],
-  kitName: 'Default Kit',
-};
+let gameState = { pvpMode: '1.8', difficulty: 'medium', botCount: 1, arena: 'flat', playerKit: [] };
+let kitSlots = Array(9).fill(null);
+let player = null;
+let bots = [];
+let gameActive = false;
 
-// ---- SETTINGS ----
-let modeSelections = {
-  'pvp-mode-ctrl': '1.8',
-  'diff-ctrl': 'easy',
-  'bots-ctrl': '1',
-  'arena-ctrl': 'flat',
-};
-
-function setMode(ctrlId, btn, val) {
-  document.querySelectorAll(`#${ctrlId} .seg-btn`).forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  modeSelections[ctrlId] = val;
-}
-
-function getMode(ctrlId) { return modeSelections[ctrlId]; }
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let W, H;
 
 // ---- SCREENS ----
 function showScreen(id) {
@@ -369,569 +175,191 @@ function showScreen(id) {
   if (id === 'kit-screen') renderItemGrid();
 }
 
-// ---- BG PARTICLES ----
-(function spawnBgParticles() {
-  const container = document.getElementById('bg-particles');
-  const colors = ['rgba(232,65,75,0.6)','rgba(255,140,0,0.4)','rgba(74,158,255,0.3)','rgba(180,74,255,0.3)'];
-  for (let i = 0; i < 20; i++) {
-    const orb = document.createElement('div');
-    orb.className = 'particle-orb';
-    const size = 4 + Math.random() * 8;
-    orb.style.cssText = `
-      width:${size}px;height:${size}px;
-      background:${colors[Math.floor(Math.random()*colors.length)]};
-      left:${Math.random()*100}%;
-      animation-duration:${6+Math.random()*10}s;
-      animation-delay:${-Math.random()*10}s;
-      filter:blur(1px);
-    `;
-    container.appendChild(orb);
-  }
-})();
+// ---- QUICK FIGHT ----
+function quickFight() {
+  kitSlots = [
+    {...ITEMS.find(i=>i.id==='sword_dia')},
+    {...ITEMS.find(i=>i.id==='pot_heal')},
+    {...ITEMS.find(i=>i.id==='bow')},
+    {...ITEMS.find(i=>i.id==='shield')},
+    {...ITEMS.find(i=>i.id==='ender_pearl')},
+    null,null,null,null
+  ];
+  gameState.playerKit = kitSlots.filter(s => s);
+  showScreen('game-screen');
+  setTimeout(() => initGame(), 50);
+}
 
-// ---- KIT BUILDER ----
-let kitSlots = Array(9).fill(null);
-let selectedItemId = null;
+// ---- START FIGHT ----
+function startFight() {
+  const filled = kitSlots.filter(s => s);
+  if (filled.length === 0) return alert('Add items!');
+  gameState.playerKit = filled;
+  showScreen('game-screen');
+  setTimeout(() => initGame(), 50);
+}
 
+// ---- KIT BUILDER UI ----
 function renderItemGrid() {
   const grid = document.getElementById('items-grid');
-  const cats = ['sword','axe','mace','ranged','crystal','potion','armor','special'];
   grid.innerHTML = '';
-  cats.forEach(cat => {
-    const catItems = ITEMS.filter(i => i.cat === cat);
-    catItems.forEach(item => {
-      const inKit = kitSlots.some(s => s && s.id === item.id);
-      const div = document.createElement('div');
-      div.className = `item-card ${inKit ? 'in-kit' : ''}`;
-      div.innerHTML = `
-        <span class="item-rarity rarity-${item.rarity.toLowerCase()}">${item.rarity}</span>
-        <span class="item-icon">${item.icon}</span>
-        <div class="item-name">${item.name}</div>
-        <div class="item-stat">${item.cat.toUpperCase()}</div>
-      `;
-      div.onclick = () => addToKit(item);
-      div.onmouseenter = (e) => showTooltip(e, item);
-      div.onmouseleave = hideTooltip;
-      grid.appendChild(div);
-    });
+  ITEMS.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'item-card';
+    div.innerHTML = `<div class="item-icon">${item.icon}</div><div class="item-name">${item.name}</div>`;
+    div.onclick = () => {
+      const idx = kitSlots.findIndex(s => !s);
+      if (idx !== -1) kitSlots[idx] = {...item};
+      renderKitSlots();
+    };
+    grid.appendChild(div);
   });
   renderKitSlots();
-}
-
-function addToKit(item) {
-  if (kitSlots.some(s => s && s.id === item.id)) { removeFromKit(item.id); return; }
-  const empty = kitSlots.findIndex(s => !s);
-  if (empty === -1) { document.getElementById('kit-warning').textContent = '⚠ Kit full! Remove an item first.'; return; }
-  kitSlots[empty] = {...item, count: getDefaultCount(item)};
-  document.getElementById('kit-warning').textContent = '';
-  renderItemGrid();
-}
-
-function removeFromKit(id) {
-  const i = kitSlots.findIndex(s => s && s.id === id);
-  if (i !== -1) kitSlots[i] = null;
-  renderItemGrid();
-}
-
-function getDefaultCount(item) {
-  if (item.cat === 'crystal') return 10;
-  if (item.cat === 'potion') return 3;
-  if (item.id === 'bow') return 64;
-  if (item.id === 'fireball') return 3;
-  if (item.id === 'ender_pearl') return 4;
-  return 1;
 }
 
 function renderKitSlots() {
   const container = document.getElementById('kit-slots');
   container.innerHTML = '';
   kitSlots.forEach((item, i) => {
-    const div = document.createElement('div');
-    div.className = `kit-slot ${item ? 'filled' : ''}`;
+    const slot = document.createElement('div');
+    slot.style.cssText = 'display:inline-block;width:60px;height:60px;background:#0a0a12;border:1px solid #333;margin:5px;text-align:center;line-height:30px;cursor:pointer;font-size:1.5rem;';
     if (item) {
-      div.innerHTML = `<span class="slot-icon">${item.icon}</span><span class="slot-name">${item.name}</span><span class="remove-x">✕</span>`;
-      div.onclick = () => removeFromKit(item.id);
+      slot.innerHTML = item.icon;
+      slot.onclick = () => { kitSlots[i] = null; renderKitSlots(); };
     } else {
-      div.innerHTML = `<span style="font-size:1.2rem;color:#333;">+</span><span class="slot-name">empty</span>`;
+      slot.innerHTML = '+';
+      slot.style.color = '#333';
     }
-    container.appendChild(div);
+    container.appendChild(slot);
   });
 }
 
-function showTooltip(e, item) {
-  const tt = document.getElementById('tooltip');
-  document.getElementById('tt-rarity').textContent = ['C','B','A','S'].includes(item.rarity) ? `[${item.rarity}-TIER]` : '';
-  document.getElementById('tt-rarity').style.color = {C:'#aaa',B:'var(--accent2)',A:'var(--purple)',S:'var(--cyan)'}[item.rarity];
-  document.getElementById('tt-name').textContent = item.name;
-  let stats = item.desc;
-  if (item.dmg > 0) stats += `\nDMG: ${item.dmg} | SPD: ${Math.round(item.aspd*100)}%`;
-  document.getElementById('tt-stats').textContent = stats;
-  tt.classList.add('show');
-  moveTT(e);
-}
-
-function moveTT(e) {
-  const tt = document.getElementById('tooltip');
-  tt.style.left = (e.clientX + 12) + 'px';
-  tt.style.top = (e.clientY - 10) + 'px';
-}
-document.addEventListener('mousemove', e => { if(document.getElementById('tooltip').classList.contains('show')) moveTT(e); });
-function hideTooltip() { document.getElementById('tooltip').classList.remove('show'); }
-
-// ---- QUICK FIGHT ---- [FIXED]
-function quickFight() {
-  // Auto-kit
-  kitSlots = [
-    {...ITEMS.find(i=>i.id==='sword_dia'), count:1},
-    {...ITEMS.find(i=>i.id==='pot_heal'), count:3},
-    {...ITEMS.find(i=>i.id==='bow'), count:64},
-    {...ITEMS.find(i=>i.id==='shield'), count:1},
-    {...ITEMS.find(i=>i.id==='ender_pearl'), count:4},
-    null,null,null,null
-  ];
-  gameState.pvpMode = '1.8';
-  gameState.difficulty = 'medium';
-  gameState.botCount = 1;
-  gameState.arena = 'flat';
-  gameState.kitName = 'Quick Kit';
-  
-  // Use setTimeout to prevent race conditions
-  setTimeout(() => {
-    gameState.playerKit = kitSlots.filter(s => s);
-    showScreen('game-screen');
-    initGame();
-  }, 10);
-}
-
-// ---- START FIGHT ----
-function startFight() {
-  const filledSlots = kitSlots.filter(s => s);
-  if (filledSlots.length === 0) {
-    document.getElementById('kit-warning').textContent = '⚠ Add at least one item to your kit!';
-    return;
-  }
-  gameState.pvpMode = getMode('pvp-mode-ctrl');
-  gameState.difficulty = getMode('diff-ctrl');
-  gameState.botCount = parseInt(getMode('bots-ctrl'));
-  gameState.arena = getMode('arena-ctrl');
-  gameState.playerKit = filledSlots;
-  gameState.kitName = document.getElementById('kit-name')?.value || 'Custom Kit';
-  showScreen('game-screen');
-  initGame();
-}
-
-// ============================================================
-//  GAME ENGINE
-// ============================================================
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-let W, H;
-let gameLoop = null;
-let gameActive = false;
-
-// Game objects
-let player, bots, projectiles, crystals, particles, effects, lavaZones;
-let frameCount = 0;
-let startTime = 0;
-let playerKills = 0;
-let playerDeaths = 0;
-let totalDamageDealt = 0;
-let comboCount = 0;
-let comboTimer = 0;
-
-function resize() {
+// ---- GAME ENGINE ----
+function initGame() {
   W = canvas.width = window.innerWidth;
   H = canvas.height = window.innerHeight;
-}
-
-window.addEventListener('resize', () => { resize(); if(gameActive) drawArena(); });
-
-function initGame() {
-  resize();
   gameActive = true;
-  frameCount = 0;
-  startTime = Date.now();
-  playerKills = 0;
-  playerDeaths = 0;
-  totalDamageDealt = 0;
-  comboCount = 0;
-  comboTimer = 0;
-  projectiles = [];
-  crystals = [];
-  particles = [];
-  effects = [];
-  lavaZones = [];
-  buildArena();
 
-  // Init player [FIXED: now properly initialized]
+  // Initialize player
   player = {
     x: W/2, y: H/2,
     hp: 20, maxHp: 20,
-    shield: 0, maxShield: 0,
-    blocking: false,
-    totemActive: false,
-    invincibleTimer: 0,
-    statusEffects: {},
+    items: gameState.playerKit,
     hotbar: 0,
-    items: gameState.playerKit.map(item => ({...item})),
-    cooldowns: {},
-    bowCharge: 0,
-    isBowCharging: false,
-    crystalCount: 10,
-    speed: 4,
-    kills: 0,
-    lastAttackTime: 0,
-    attackSwing: 0,
     facingRight: true,
-    fallHeight: 0,
-    vy: 0, vx: 0,
-    onGround: true,
+    blocking: false,
+    isBowCharging: false,
+    vx: 0, vy: 0,
   };
 
-  if (player.items.find(i => i.id === 'totem')) player.totemActive = true;
-  if (player.items.find(i => i.id === 'shield')) { player.maxShield = 0; }
+  bots = [
+    { x: W/2 + 200, y: H/2, hp: 20, maxHp: 20, name: 'Bot1', facingRight: false },
+    { x: W/2 - 200, y: H/2, hp: 20, maxHp: 20, name: 'Bot2', facingRight: true },
+  ];
 
-  // Init bots
-  bots = [];
-  for (let i = 0; i < gameState.botCount; i++) {
-    const angle = (i / gameState.botCount) * Math.PI * 2;
-    const dist = 180 + i * 60;
-    bots.push(createBot(
-      W/2 + Math.cos(angle) * dist,
-      H/2 + Math.sin(angle) * dist,
-      i
-    ));
-  }
-
-  document.getElementById('mode-badge').textContent = getModeLabel();
   renderHotbar();
   updateHealthUI();
-
-  if (gameLoop) cancelAnimationFrame(gameLoop);
-  gameLoop = requestAnimationFrame(gameTick);
-
-  setInterval(() => {
-    if (!gameActive) return;
-    document.getElementById('ping-badge').textContent = `⬀ ${3 + Math.floor(Math.random()*5)}ms`;
-  }, 2000);
+  gameLoop();
 }
 
-function getModeLabel() {
-  const labels = {'1.8':'1.8 PVP — No Sweep','crystal':'Crystal PVP','mace':'Mace PVP','1.21':'1.21 PVP'};
-  return (labels[gameState.pvpMode] || '1.8 PVP') + ' | ' + gameState.difficulty.toUpperCase();
-}
-
-// ---- BOT CREATION ----
-function createBot(x, y, idx) {
-  const diffStats = {
-    easy:   {reactionTime:80, aimErr:40, aggression:0.3, strafeFreq:0.01, retreatHp:4,  blockChance:0.05},
-    medium: {reactionTime:40, aimErr:18, aggression:0.6, strafeFreq:0.03, retreatHp:6,  blockChance:0.2},
-    hard:   {reactionTime:16, aimErr:7,  aggression:0.8, strafeFreq:0.06, retreatHp:8,  blockChance:0.45},
-    insane: {reactionTime:4,  aimErr:1,  aggression:1.0, strafeFreq:0.1,  retreatHp:10, blockChance:0.75},
-  };
-  const ds = diffStats[gameState.difficulty];
-  const names = ['xX_Cryst4l_Xx','h4rdcr3bot','VoidSlayer','NotchBot','HotbarBot','G0dBridge3r','AnnihilateAI'];
-  let botItems = getBotKit();
-  return {
-    x, y, hp: 20, maxHp: 20,
-    shield: 0, maxShield: 0,
-    name: names[idx % names.length],
-    color: `hsl(${30+idx*80},80%,60%)`,
-    items: botItems,
-    hotbar: 0,
-    cooldowns: {},
-    speed: 2.5 + (idx * 0.2),
-    ai: {...ds},
-    state: 'chase',
-    stateTimer: 0,
-    strafeDir: 1,
-    strafeTimer: 0,
-    lastAttack: 0,
-    invincibleTimer: 0,
-    statusEffects: {},
-    vx: 0, vy: 0,
-    facingRight: true,
-    blocking: false,
-    crystalCount: 6,
-    totemActive: botItems.find(i=>i.id==='totem') ? true : false,
-    attackSwing: 0,
-    targetCrystal: null,
-    kills: 0,
-    fallHeight: 0,
-    onGround: true,
-  };
-}
-
-function getBotKit() {
-  const mode = gameState.pvpMode;
-  if (mode === 'crystal') {
-    return [
-      {...ITEMS.find(i=>i.id==='sword_dia'), count:1},
-      {...ITEMS.find(i=>i.id==='crystal'), count:10},
-      {...ITEMS.find(i=>i.id==='totem'), count:1},
-      {...ITEMS.find(i=>i.id==='pot_heal'), count:3},
-    ];
-  } else if (mode === 'mace') {
-    return [
-      {...ITEMS.find(i=>i.id==='mace'), count:1},
-      {...ITEMS.find(i=>i.id==='totem'), count:1},
-      {...ITEMS.find(i=>i.id==='pot_heal'), count:3},
-    ];
-  } else if (mode === '1.21') {
-    return [
-      {...ITEMS.find(i=>i.id==='axe_dia'), count:1},
-      {...ITEMS.find(i=>i.id==='shield'), count:1},
-      {...ITEMS.find(i=>i.id==='pot_heal'), count:3},
-      {...ITEMS.find(i=>i.id==='mace'), count:1},
-    ];
-  }
-  return [
-    {...ITEMS.find(i=>i.id==='sword_dia'), count:1},
-    {...ITEMS.find(i=>i.id==='bow'), count:64},
-    {...ITEMS.find(i=>i.id==='pot_heal'), count:3},
-    {...ITEMS.find(i=>i.id==='fishing_rod'), count:1},
-  ];
-}
-
-// ---- INPUT ---- [FIXED: Added null checks]
-const keys = {};
-let mousePos = {x: W/2||400, y: H/2||300};
-let mouseDown = false;
-let rightMouseDown = false;
-let lastClickTime = 0;
-
-document.addEventListener('keydown', e => {
-  keys[e.code] = true;
+function gameLoop() {
   if (!gameActive) return;
-  for (let i = 0; i < 9; i++) {
-    if (e.code === `Digit${i+1}`) { player.hotbar = Math.min(i, player.items.length-1); renderHotbar(); }
-  }
-  if (e.key === 'q' || e.key === 'Q') player.hotbar = Math.max(0, player.hotbar-1), renderHotbar();
-  if (e.key === 'f' || e.key === 'F') player.hotbar = Math.min(player.items.length-1, player.hotbar+1), renderHotbar();
-  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-    const shield = player.items.find(i => i.id === 'shield');
-    if (shield && !shield.broken) player.blocking = true;
-  }
-});
 
-document.addEventListener('keyup', e => {
-  keys[e.code] = false;
-  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') player.blocking = false;
-  if (e.code === 'Space' && player && player.isBowCharging) releaseBow();
-});
+  // Draw
+  ctx.fillStyle = '#87CEEB';
+  ctx.fillRect(0, 0, W, H);
 
-canvas.addEventListener('mousemove', e => {
-  const r = canvas.getBoundingClientRect();
-  mousePos = {x: e.clientX - r.left, y: e.clientY - r.top};
-});
+  // Ground
+  ctx.fillStyle = '#5a8a3c';
+  ctx.fillRect(0, H/2 + 100, W, H);
 
-canvas.addEventListener('mousedown', e => {
-  if (e.button === 0) { mouseDown = true; handleClick(); }
-  if (e.button === 2) { rightMouseDown = true; handleRightClick(); }
-  e.preventDefault();
-});
+  // Player
+  if (player) {
+    ctx.fillStyle = '#3a6aaa';
+    ctx.fillRect(player.x - 10, player.y - 20, 20, 30);
+    ctx.fillStyle = '#f5c080';
+    ctx.fillRect(player.x - 9, player.y - 40, 18, 18);
 
-canvas.addEventListener('mouseup', e => {
-  if (e.button === 0) { 
-    mouseDown = false; 
-    if(player && player.isBowCharging) releaseBow();
-  }
-  if (e.button === 2) { rightMouseDown = false; if(player) player.blocking = false; }
-});
-
-canvas.addEventListener('contextmenu', e => e.preventDefault());
-
-// ---- ARENA GEOMETRY ----
-let arenaObstacles = [];
-let arenaEdge = 400;
-
-function buildArena() {
-  arenaObstacles = [];
-  const type = gameState.arena;
-  if (type === 'pillars') {
-    const positions = [[-150,-120],[150,-120],[-150,120],[150,120],[0,-200],[0,200],[-250,0],[250,0]];
-    positions.forEach(([px,py]) => {
-      arenaObstacles.push({x:W/2+px-16,y:H/2+py-40,w:32,h:80,color:'#7a7a7a',top:'#9a9a9a'});
-    });
-  } else if (type === 'sky') {
-    const plats = [[-200,20,120,16],[200,-30,100,16],[0,-100,140,16],[-280,60,80,16],[280,0,80,16],[0,80,200,16]];
-    plats.forEach(([px,py,pw,ph]) => {
-      arenaObstacles.push({x:W/2+px-pw/2,y:H/2+py,w:pw,h:ph,color:'#5a8a3c',top:'#4a7a2c'});
-    });
-    arenaEdge = 500;
-  }
-}
-
-// ---- DRAW ARENA ----
-function drawArena() {
-  const skyGrad = ctx.createLinearGradient(0,0,0,H);
-  if (gameState.arena === 'sky') {
-    skyGrad.addColorStop(0,'#1a3a6a');
-    skyGrad.addColorStop(1,'#0a1a3a');
-  } else {
-    skyGrad.addColorStop(0,'#87CEEB');
-    skyGrad.addColorStop(1,'#c8e8ff');
-  }
-  ctx.fillStyle = skyGrad;
-  ctx.fillRect(0,0,W,H);
-
-  if (gameState.arena !== 'sky') {
-    ctx.fillStyle = '#5a8a3c';
-    ctx.fillRect(0, H/2+160, W, H);
-    ctx.fillStyle = '#4a7a2c';
-    ctx.fillRect(0, H/2+155, W, 10);
-    ctx.strokeStyle = 'rgba(0,0,0,0.05)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < W; x += 32) {
-      ctx.beginPath(); ctx.moveTo(x, H/2+160); ctx.lineTo(x, H); ctx.stroke();
+    const item = player.items[player.hotbar];
+    if (item) {
+      ctx.font = '1.5rem serif';
+      ctx.fillText(item.icon, player.x + 10, player.y - 15);
     }
-    ctx.strokeStyle = 'rgba(232,65,75,0.3)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([8,8]);
-    ctx.strokeRect(W/2-arenaEdge, H/2-280, arenaEdge*2, 440);
-    ctx.setLineDash([]);
   }
 
-  arenaObstacles.forEach(ob => {
-    ctx.fillStyle = ob.color;
-    ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
-    if (ob.top) {
-      ctx.fillStyle = ob.top;
-      ctx.fillRect(ob.x, ob.y, ob.w, 6);
-    }
-    ctx.fillStyle = 'rgba(0,0,0,0.15)';
-    ctx.fillRect(ob.x+4, ob.y+ob.h, ob.w-4, 8);
-  });
-}
+  // Bots
+  bots.forEach(bot => {
+    ctx.fillStyle = '#c94444';
+    ctx.fillRect(bot.x - 10, bot.y - 20, 20, 30);
+    ctx.fillStyle = '#f5c080';
+    ctx.fillRect(bot.x - 9, bot.y - 40, 18, 18);
 
-// ---- DRAW ENTITY ----
-function drawPlayer(ent, isPlayer=false) {
-  const {x, y} = ent;
-  const alpha = (ent.statusEffects.invis && !isPlayer) ? 0.15 : 1;
-  ctx.globalAlpha = alpha;
-
-  ctx.fillStyle = 'rgba(0,0,0,0.25)';
-  ctx.beginPath();
-  ctx.ellipse(x, y+2, 14, 5, 0, 0, Math.PI*2);
-  ctx.fill();
-
-  const bodyColor = isPlayer ? '#3a6aaa' : ent.color;
-  ctx.fillStyle = ent.invincibleTimer > 0 ? 'rgba(255,100,100,0.8)' : bodyColor;
-  ctx.fillRect(x-10, y-28, 20, 26);
-
-  ctx.fillStyle = '#f5c080';
-  ctx.fillRect(x-9, y-46, 18, 18);
-
-  ctx.fillStyle = '#222';
-  const eyeDir = ent.facingRight ? 1 : -1;
-  ctx.fillRect(x+(eyeDir*2)-1, y-41, 3, 3);
-
-  if (isPlayer) {
-    ctx.fillStyle = 'rgba(100,150,255,0.35)';
-    ctx.fillRect(x-10, y-28, 20, 26);
-  } else {
-    ctx.fillStyle = 'rgba(200,80,80,0.3)';
-    ctx.fillRect(x-10, y-28, 20, 26);
-  }
-
-  const curItem = ent.items[ent.hotbar];
-  if (curItem && ent.attackSwing > 0) {
-    const swingAngle = ent.facingRight ? -ent.attackSwing : Math.PI + ent.attackSwing;
-    ctx.save();
-    ctx.translate(x + (ent.facingRight ? 10 : -10), y-18);
-    ctx.rotate(swingAngle);
-    ctx.font = '18px serif';
     ctx.fillStyle = '#fff';
-    ctx.fillText(curItem.icon, -6, 6);
-    ctx.restore();
-  } else if (curItem) {
-    ctx.font = '16px serif';
-    ctx.fillText(curItem.icon, x + (ent.facingRight ? 12 : -26), y-16);
-  }
-
-  if (ent.blocking) {
-    ctx.fillStyle = 'rgba(74,158,255,0.6)';
-    const sx = ent.facingRight ? x+12 : x-22;
-    ctx.fillRect(sx, y-35, 10, 28);
-  }
-
-  if (!isPlayer) {
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    const nw = ent.name.length * 5.5 + 8;
-    ctx.fillRect(x - nw/2, y-62, nw, 14);
-    ctx.fillStyle = '#fff';
-    ctx.font = '10px "Rajdhani",sans-serif';
+    ctx.font = '10px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(ent.name, x, y-51);
-    ctx.textAlign = 'left';
+    ctx.fillText(bot.name, bot.x, bot.y - 55);
+  });
 
-    const bw = 44;
-    ctx.fillStyle = '#111';
-    ctx.fillRect(x-bw/2, y-50, bw, 5);
-    ctx.fillStyle = ent.hp/ent.maxHp > 0.5 ? '#4aff6a' : ent.hp/ent.maxHp > 0.25 ? '#ff9900' : '#ff4040';
-    ctx.fillRect(x-bw/2, y-50, bw*(ent.hp/ent.maxHp), 5);
-  }
-
-  if (ent.statusEffects.str) { ctx.font='10px serif'; ctx.fillText('⚡',x-6,y-54); }
-  if (ent.statusEffects.fire) { ctx.font='12px serif'; ctx.fillText('🔥',x-6,y-62); }
-
-  ctx.globalAlpha = 1;
+  updateHealthUI();
+  requestAnimationFrame(gameLoop);
 }
 
-// ---- DRAW PROJECTILES ----
-function drawProjectiles() {
-  projectiles.forEach(p => {
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    if (p.type === 'arrow') {
-      ctx.rotate(Math.atan2(p.vy, p.vx));
-      ctx.fillStyle = '#8B6914';
-      ctx.fillRect(-8, -1.5, 16, 3);
-      ctx.fillStyle = '#555';
-      ctx.fillRect(6, -1.5, 4, 3);
-    } else if (p.type === 'fireball') {
-      ctx.font = '18px serif';
-      ctx.fillText('🔥', -9, 7);
-    } else if (p.type === 'trident') {
-      ctx.rotate(Math.atan2(p.vy, p.vx));
-      ctx.font = '18px serif';
-      ctx.fillText('🔱', -9, 7);
-    } else if (p.type === 'fishHook') {
-      ctx.fillStyle = '#ccc';
-      ctx.beginPath();
-      ctx.arc(0,0,3,0,Math.PI*2);
-      ctx.fill();
-      if (p.owner) {
-        ctx.strokeStyle = 'rgba(200,200,200,0.4)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(0,0);
-        ctx.lineTo(p.owner.x - p.x, p.owner.y - p.y);
-        ctx.stroke();
-      }
-    } else if (p.type === 'pearl') {
-      ctx.fillStyle = '#4aff6a';
-      ctx.beginPath();
-      ctx.arc(0,0,5,0,Math.PI*2);
-      ctx.fill();
-    }
-    ctx.restore();
+function renderHotbar() {
+  const hb = document.getElementById('hotbar');
+  hb.innerHTML = '';
+  if (!player) return;
+  player.items.forEach((item, idx) => {
+    const slot = document.createElement('div');
+    slot.className = `hslot ${idx === player.hotbar ? 'active' : ''}`;
+    slot.innerHTML = `<div class="hicon">${item.icon}</div>`;
+    slot.onclick = () => { player.hotbar = idx; renderHotbar(); };
+    hb.appendChild(slot);
   });
 }
 
-// ---- PLACEHOLDER FUNCTIONS ----
-function handleClick() {}
-function handleRightClick() {}
-function releaseBow() { if(player) player.isBowCharging = false; }
-function renderHotbar() {}
-function updateHealthUI() {}
-function gameTick() { 
-  frameCount++;
-  gameLoop = requestAnimationFrame(gameTick);
+function updateHealthUI() {
+  if (!player) return;
+  const pct = (player.hp / player.maxHp) * 100;
+  document.getElementById('p-hp-bar').style.width = pct + '%';
+  document.getElementById('p-hp-text').textContent = player.hp + '/' + player.maxHp;
 }
-function endGame() { gameActive = false; showScreen('menu-screen'); }
 
+// ---- INPUT ----
+document.addEventListener('keydown', e => {
+  if (!gameActive || !player) return;
+  if (e.code === 'ArrowLeft' || e.key === 'a') player.x -= 10;
+  if (e.code === 'ArrowRight' || e.key === 'd') player.x += 10;
+  if (e.code === 'ArrowUp' || e.key === 'w') player.y -= 10;
+  if (e.code === 'ArrowDown' || e.key === 's') player.y += 10;
+  for (let i = 0; i < 9; i++) {
+    if (e.code === `Digit${i+1}`) player.hotbar = Math.min(i, player.items.length - 1);
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const hand = document.getElementById('player-hand');
+  hand.style.left = e.clientX + 'px';
+  hand.style.top = e.clientY + 'px';
+});
+
+canvas.addEventListener('click', (e) => {
+  if (!gameActive || !player) return;
+  const dx = e.clientX - player.x;
+  const dy = e.clientY - player.y;
+  const botHit = bots.find(bot => Math.hypot(dx - (bot.x - player.x), dy - (bot.y - player.y)) < 40);
+  if (botHit) {
+    botHit.hp -= 3;
+    if (botHit.hp <= 0) botHit.hp = 20;
+  }
+});
+
+function endGame() {
+  gameActive = false;
+  showScreen('menu-screen');
+}
+
+// Init
+renderItemGrid();
 </script>
 </body>
 </html>
