@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quartisim's PVP</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --panel: #111118;
+  --border: #2a2a3a;
+  --accent: #e8414b;
+  --accent2: #ff8c00;
+  --blue: #4a9eff;
+  --green: #4aff6a;
+  --purple: #b44aff;
+  --cyan: #00e5ff;
+  --text: #e8e0d0;
+  --muted: #556;
+  --gold: #ffd700;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:9999;}
+
+/* SCREENS */
+.screen{display:none;position:fixed;inset:0;overflow-y:auto;}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;}
+
+/* ===== MAIN MENU ===== */
+#menu-screen{background:radial-gradient(ellipse at 50% 30%,#1a0808 0%,#0a0a0f 70%);}
+.menu-bg-particles{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.particle-orb{position:absolute;border-radius:50%;animation:floatOrb linear infinite;}
+@keyframes floatOrb{0%{transform:translateY(100vh) scale(0);opacity:0;}10%{opacity:1;}90%{opacity:0.5;}100%{transform:translateY(-100px) scale(1.5);opacity:0;}}
+.menu-content{position:relative;z-index:1;text-align:center;padding:20px;}
+.game-title{font-family:'VT323',monospace;font-size:clamp(3rem,8vw,6rem);color:var(--accent);text-shadow:0 0 30px rgba(232,65,75,0.8),0 0 80px rgba(232,65,75,0.3);letter-spacing:0.05em;line-height:1;}
+.game-subtitle{font-size:1rem;letter-spacing:0.5em;color:var(--muted);margin-top:-8px;margin-bottom:40px;text-transform:uppercase;}
+.menu-btn{display:block;width:280px;padding:14px 30px;margin:10px auto;background:transparent;border:2px solid var(--accent);color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;position:relative;transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+.menu-btn::before{content:'';position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transition:transform 0.2s;transform-origin:left;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+.menu-btn:hover{color:#000;text-shadow:none;}
+.menu-btn:hover::before{transform:scaleX(1);}
+.menu-btn span{position:relative;z-index:1;}
+.menu-btn.blue{border-color:var(--blue);color:var(--blue);}
+.menu-btn.blue::before{background:var(--blue);}
+.menu-btn.green{border-color:var(--green);color:var(--green);}
+.menu-btn.green::before{background:var(--green);}
+.version-tag{font-size:0.75rem;color:var(--muted);margin-top:30px;letter-spacing:0.3em;}
+
+/* ===== KIT BUILDER ===== */
+#kit-screen{background:var(--bg);padding:20px;align-items:stretch;justify-content:flex-start;}
+.kit-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:1100px;margin:0 auto;padding:20px;}
+.kit-panel{background:var(--panel);border:1px solid var(--border);padding:20px;}
+.panel-title{font-family:'VT323',monospace;font-size:1.8rem;color:var(--accent);letter-spacing:0.15em;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:16px;}
+.items-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.item-card{background:#0d0d15;border:1px solid var(--border);padding:10px 8px;cursor:pointer;transition:all 0.15s;text-align:center;position:relative;}
+.item-card:hover{border-color:var(--accent);background:rgba(232,65,75,0.08);}
+.item-card.selected{border-color:var(--green);background:rgba(74,255,106,0.08);}
+.item-card.in-kit{border-color:var(--accent2);}
+.item-icon{font-size:1.8rem;display:block;margin-bottom:4px;}
+.item-name{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);}
+.item-stat{font-size:0.6rem;color:var(--muted);}
+.item-rarity{position:absolute;top:3px;right:4px;font-size:0.5rem;font-weight:700;letter-spacing:0.1em;}
+.rarity-s{color:var(--cyan);}
+.rarity-a{color:var(--purple);}
+.rarity-b{color:var(--accent2);}
+.rarity-c{color:#aaa;}
+
+.kit-slots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;}
+.kit-slot{background:#0a0a12;border:2px dashed #333;height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;position:relative;}
+.kit-slot.filled{border-style:solid;border-color:var(--accent2);}
+.kit-slot .slot-icon{font-size:1.6rem;}
+.kit-slot .slot-name{font-size:0.5rem;color:var(--muted);text-align:center;margin-top:2px;}
+.kit-slot .remove-x{position:absolute;top:2px;right:4px;font-size:0.6rem;color:var(--accent);opacity:0;transition:opacity 0.15s;}
+.kit-slot:hover .remove-x{opacity:1;}
+
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a1a25;}
+.settings-label{font-weight:700;font-size:0.9rem;letter-spacing:0.1em;text-transform:uppercase;}
+.settings-val{font-size:0.85rem;color:var(--muted);}
+.seg-ctrl{display:flex;gap:4px;}
+.seg-btn{padding:6px 14px;background:transparent;border:1px solid #333;color:#666;font-family:'Rajdhani',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.1em;}
+.seg-btn.active{background:var(--accent);border-color:var(--accent);color:#000;}
+.seg-btn.blue.active{background:var(--blue);border-color:var(--blue);}
+.seg-btn.green.active{background:var(--green);border-color:var(--green);}
+
+/* ===== ARENA / GAME SCREEN ===== */
+#game-screen{background:var(--bg);padding:0;}
+#gameCanvas{display:block;cursor:crosshair;}
+#game-hud{position:fixed;inset:0;pointer-events:none;z-index:100;}
+
+/* Health bars */
+.hud-health-area{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;}
+.health-bar-wrap{width:300px;}
+.hbar-label{font-size:0.65rem;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase;margin-bottom:3px;display:flex;justify-content:space-between;}
+.hbar{height:14px;background:#111;border:1px solid #333;border-radius:2px;overflow:hidden;position:relative;}
+.hbar-fill{height:100%;transition:width 0.2s;border-radius:1px;}
+.hbar-fill.player{background:linear-gradient(90deg,#e84040,#ff6060);}
+.hbar-fill.enemy{background:linear-gradient(90deg,#40e860,#60ff80);}
+.hbar-fill.shield{background:linear-gradient(90deg,var(--blue),var(--cyan));}
+
+/* Hotbar */
+.hotbar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:rgba(0,0,0,0.7);border:1px solid #333;padding:5px;border-radius:4px;}
+.hslot{width:56px;height:56px;background:#0a0a12;border:2px solid #333;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;transition:border-color 0.1s;}
+.hslot.active{border-color:var(--accent);}
+.hslot .hicon{font-size:1.5rem;}
+.hslot .hname{font-size:0.42rem;color:#aaa;text-align:center;letter-spacing:0.05em;text-transform:uppercase;margin-top:1px;}
+.hslot .hkey{position:absolute;top:2px;left:4px;font-size:0.5rem;color:#555;}
+.hslot .hcooldown{position:absolute;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#fff;border-radius:2px;}
+
+/* Combo/kill feed */
+.killfeed{position:absolute;top:16px;right:16px;display:flex;flex-direction:column;gap:4px;align-items:flex-end;}
+.kf-entry{background:rgba(0,0,0,0.7);border-left:3px solid var(--accent);padding:4px 10px;font-size:0.75rem;animation:kfSlide 0.3s ease,kfFade 0.5s ease 2.5s forwards;}
+@keyframes kfSlide{from{transform:translateX(60px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes kfFade{to{opacity:0;}}
+.combo-display{position:absolute;top:80px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;}
+.combo-num{font-family:'VT323',monospace;font-size:3rem;color:var(--accent2);text-shadow:0 0 20px rgba(255,140,0,0.8);animation:comboPop 0.2s ease;}
+@keyframes comboPop{from{transform:scale(1.5);}to{transform:scale(1);}}
+.combo-label{font-size:0.7rem;letter-spacing:0.4em;color:var(--accent2);text-transform:uppercase;}
+
+/* Damage numbers */
+.dmg-num{position:absolute;font-family:'VT323',monospace;font-size:1.4rem;font-weight:700;pointer-events:none;animation:dmgFloat 1s ease-out forwards;z-index:200;}
+@keyframes dmgFloat{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-60px) scale(0.7);opacity:0;}}
+
+/* Mode indicator */
+.mode-badge{position:absolute;top:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);border:1px solid var(--accent);padding:4px 20px;font-size:0.75rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--accent);}
+
+/* Status effects */
+.status-effects{position:absolute;top:16px;left:16px;display:flex;gap:6px;}
+.se-badge{padding:3px 8px;border-radius:2px;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;border:1px solid;}
+
+/* Crystals on field */
+.crystal-indicator{position:absolute;pointer-events:none;text-align:center;}
+
+/* ===== RESULTS ===== */
+#result-screen{background:radial-gradient(ellipse at 50% 0%,#1a0808,#0a0a0f 60%);}
+.result-content{text-align:center;padding:40px;}
+.result-title{font-family:'VT323',monospace;font-size:5rem;margin-bottom:10px;}
+.result-title.win{color:var(--gold);text-shadow:0 0 40px rgba(255,215,0,0.6);}
+.result-title.loss{color:var(--accent);text-shadow:0 0 40px rgba(232,65,75,0.6);}
+.result-stats{background:var(--panel);border:1px solid var(--border);padding:24px 40px;margin:24px auto;max-width:500px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat-item{text-align:center;}
+.stat-val{font-family:'VT323',monospace;font-size:2.5rem;color:var(--accent2);}
+.stat-label{font-size:0.7rem;letter-spacing:0.3em;color:var(--muted);text-transform:uppercase;}
+
+/* UTIL */
+.back-btn{background:transparent;border:1px solid #333;color:#666;font-family:'Rajdhani',sans-serif;font-size:0.85rem;font-weight:700;padding:8px 20px;cursor:pointer;letter-spacing:0.2em;text-transform:uppercase;transition:all 0.15s;margin-top:10px;}
+.back-btn:hover{border-color:var(--accent);color:var(--accent);}
+.start-fight-btn{display:block;width:100%;padding:16px;margin-top:20px;background:var(--accent);border:none;color:#000;font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);}
+.start-fight-btn:hover{background:#ff2030;transform:scale(1.02);}
+.kit-name-input{background:#0a0a12;border:1px solid var(--border);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1rem;padding:8px 12px;width:100%;margin-bottom:12px;outline:none;}
+.kit-name-input:focus{border-color:var(--accent);}
+
+/* TOOLTIP */
+.tooltip{position:fixed;background:#0d0d18;border:1px solid var(--accent);padding:8px 12px;font-size:0.75rem;pointer-events:none;z-index:9000;max-width:200px;display:none;}
+.tooltip.show{display:block;}
+.tt-name{font-weight:700;color:var(--text);margin-bottom:4px;font-size:0.85rem;}
+.tt-stats{color:var(--muted);}
+.tt-rarity{font-size:0.6rem;font-weight:700;letter-spacing:0.2em;}
+
+/* Animations */
+@keyframes shakeX{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+.shake{animation:shakeX 0.3s ease;}
+
+/* Crosshair */
+#crosshair{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:20px;height:20px;pointer-events:none;}
+#crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(255,255,255,0.8);}
+#crosshair::before{width:2px;height:100%;left:50%;transform:translateX(-50%);}
+#crosshair::after{height:2px;width:100%;top:50%;transform:translateY(-50%);}
+
+/* Ping / latency fake */
+.ping-badge{position:absolute;bottom:80px;right:16px;font-size:0.65rem;color:#4aff6a;font-family:'VT323',monospace;}
+</style>
+</head>
+<body>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip">
+  <div class="tt-rarity" id="tt-rarity"></div>
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-stats" id="tt-stats"></div>
+</div>
+
+<!-- ===== MAIN MENU ===== -->
+<div class="screen active" id="menu-screen">
+  <div class="menu-bg-particles" id="bg-particles"></div>
+  <div class="menu-content">
+    <div class="game-title">QUARTISIM'S</div>
+    <div class="game-title" style="font-size:clamp(2rem,6vw,4.5rem);color:#fff;text-shadow:0 0 20px rgba(255,255,255,0.3);">PVP</div>
+    <div class="game-subtitle">No rules. Just combat.</div>
+    <button class="menu-btn" onclick="showScreen('kit-screen')"><span>⚔ Build Kit & Fight</span></button>
+    <button class="menu-btn blue" onclick="quickFight()"><span>⚡ Quick Fight</span></button>
+    <div class="version-tag">v1.0 — 1.8 · Crystal · Mace · 1.21 PVP</div>
+  </div>
+</div>
+
+<!-- ===== KIT BUILDER ===== -->
+<div class="screen" id="kit-screen" style="justify-content:flex-start;padding-top:20px;">
+  <div style="width:100%;max-width:1100px;margin:0 auto;padding:0 20px;">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+      <button class="back-btn" onclick="showScreen('menu-screen')">← Back</button>
+      <h2 style="font-family:'VT323',monospace;font-size:2rem;color:var(--accent);letter-spacing:0.1em;">KIT BUILDER</h2>
+    </div>
+  </div>
+  <div class="kit-layout">
+    <!-- LEFT: items -->
+    <div>
+      <div class="kit-panel">
+        <div class="panel-title">🗡 Available Items</div>
+        <div class="items-grid" id="items-grid"></div>
+      </div>
+    </div>
+    <!-- RIGHT: kit + settings -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="kit-panel">
+        <div class="panel-title">🎒 Your Kit <span style="font-size:0.9rem;color:var(--muted);">(max 9 slots)</span></div>
+        <input class="kit-name-input" id="kit-name" placeholder="Kit name (e.g. Crystal God)" maxlength="24">
+        <div class="kit-slots" id="kit-slots"></div>
+        <div id="kit-warning" style="font-size:0.75rem;color:var(--accent);min-height:18px;"></div>
+      </div>
+      <div class="kit-panel">
+        <div class="panel-title">⚙ Match Settings</div>
+        <div class="settings-row">
+          <div class="settings-label">PVP Mode</div>
+          <div class="seg-ctrl" id="pvp-mode-ctrl">
+            <button class="seg-btn active" data-mode="1.8" onclick="setMode('pvp-mode-ctrl',this,'1.8')">1.8</button>
+            <button class="seg-btn" data-mode="crystal" onclick="setMode('pvp-mode-ctrl',this,'crystal')">Crystal</button>
+            <button class="seg-btn" data-mode="mace" onclick="setMode('pvp-mode-ctrl',this,'mace')">Mace</button>
+            <button class="seg-btn" data-mode="1.21" onclick="setMode('pvp-mode-ctrl',this,'1.21')">1.21</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Bot Difficulty</div>
+          <div class="seg-ctrl" id="diff-ctrl">
+            <button class="seg-btn green active" data-val="easy" onclick="setMode('diff-ctrl',this,'easy')">Easy</button>
+            <button class="seg-btn blue" data-val="medium" onclick="setMode('diff-ctrl',this,'medium')">Medium</button>
+            <button class="seg-btn" data-val="hard" onclick="setMode('diff-ctrl',this,'hard')">Hard</button>
+            <button class="seg-btn" data-val="insane" onclick="setMode('diff-ctrl',this,'insane')" style="border-color:var(--purple);color:var(--purple);">Insane</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Bot Count</div>
+          <div class="seg-ctrl" id="bots-ctrl">
+            <button class="seg-btn active" data-val="1" onclick="setMode('bots-ctrl',this,'1')">1v1</button>
+            <button class="seg-btn" data-val="2" onclick="setMode('bots-ctrl',this,'2')">1v2</button>
+            <button class="seg-btn" data-val="3" onclick="setMode('bots-ctrl',this,'3')">1v3</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Arena</div>
+          <div class="seg-ctrl" id="arena-ctrl">
+            <button class="seg-btn active" data-val="flat" onclick="setMode('arena-ctrl',this,'flat')">Flat</button>
+            <button class="seg-btn" data-val="pillars" onclick="setMode('arena-ctrl',this,'pillars')">Pillars</button>
+            <button class="seg-btn" data-val="sky" onclick="setMode('arena-ctrl',this,'sky')">Sky</button>
+          </div>
+        </div>
+        <button class="start-fight-btn" onclick="startFight()">START FIGHT →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div class="screen" id="game-screen">
+  <canvas id="gameCanvas"></canvas>
+  <div id="game-hud">
+    <div id="crosshair"></div>
+    <div class="mode-badge" id="mode-badge">1.8 PVP</div>
+    <div class="killfeed" id="killfeed"></div>
+    <div class="combo-display" id="combo-display" style="display:none;"></div>
+    <div class="hud-health-area">
+      <div class="health-bar-wrap">
+        <div class="hbar-label"><span>YOU</span><span id="p-hp-text">20/20</span></div>
+        <div class="hbar"><div class="hbar-fill player" id="p-hp-bar" style="width:100%"></div></div>
+      </div>
+      <div class="health-bar-wrap" id="shield-bar-wrap" style="display:none;">
+        <div class="hbar-label"><span>🛡 SHIELD</span><span id="p-shield-text">0</span></div>
+        <div class="hbar"><div class="hbar-fill shield" id="p-shield-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="hotbar" id="hotbar"></div>
+    <div class="status-effects" id="status-effects"></div>
+    <div class="ping-badge" id="ping-badge">⬤ 4ms</div>
+    <button style="position:absolute;top:16px;left:16px;pointer-events:all;" class="back-btn" onclick="endGame()">✕ Quit</button>
+  </div>
+</div>
+
+<!-- ===== RESULT SCREEN ===== -->
+<div class="screen" id="result-screen">
+  <div class="result-content">
+    <div class="result-title" id="result-title">YOU WIN</div>
+    <div style="font-size:0.9rem;letter-spacing:0.3em;color:var(--muted);margin-bottom:20px;" id="result-sub"></div>
+    <div class="result-stats" id="result-stats"></div>
+    <button class="menu-btn" style="margin-top:20px;" onclick="showScreen('kit-screen')"><span>↩ Rematch Settings</span></button>
+    <button class="menu-btn blue" style="margin-top:0;" onclick="showScreen('menu-screen')"><span>⌂ Main Menu</span></button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  QUARTISIM'S PVP — Full game engine
+// ============================================================
+
+// ---- ITEM DATABASE ----
+const ITEMS = [
+  // SWORDS
+  {id:'sword_wood',  name:'Wood Sword',   icon:'🗡',  cat:'sword', dmg:4,  aspd:0.6, rarity:'C', desc:'Base damage 4. Slow speed.',           special:null},
+  {id:'sword_stone', name:'Stone Sword',  icon:'⚔',  cat:'sword', dmg:5,  aspd:0.65,rarity:'C', desc:'Reliable starter sword.',               special:null},
+  {id:'sword_iron',  name:'Iron Sword',   icon:'🔪',  cat:'sword', dmg:6,  aspd:0.7, rarity:'B', desc:'Standard PVP sword.',                   special:null},
+  {id:'sword_dia',   name:'Diamond Sword',icon:'💎',  cat:'sword', dmg:7,  aspd:0.75,rarity:'A', desc:'High damage. Classic 1.8 weapon.',      special:null},
+  {id:'sword_netherite',name:'Netherite Sw',icon:'🌑',cat:'sword',dmg:8,  aspd:0.78,rarity:'S', desc:'Best sword. Knockback resist.',         special:'kb_resist'},
+  // AXES
+  {id:'axe_iron',    name:'Iron Axe',     icon:'🪓',  cat:'axe',   dmg:9,  aspd:0.4, rarity:'B', desc:'High damage, slow. Disables shields.',  special:'shield_break'},
+  {id:'axe_dia',     name:'Diamond Axe',  icon:'💠',  cat:'axe',   dmg:10, aspd:0.45,rarity:'A', desc:'Massive damage. Shield destroyer.',      special:'shield_break'},
+  {id:'axe_neth',    name:'Netherite Axe',icon:'🔱',  cat:'axe',   dmg:12, aspd:0.5, rarity:'S', desc:'The axe. Shreds shields instantly.',    special:'shield_break'},
+  // MACE
+  {id:'mace',        name:'Mace',         icon:'🏛',  cat:'mace',  dmg:6,  aspd:0.5, rarity:'S', desc:'Fall damage bonus: +2 per block fallen. Smash attack.',special:'fall_bonus'},
+  // BOW
+  {id:'bow',         name:'Bow',          icon:'🏹',  cat:'ranged',dmg:9,  aspd:0.3, rarity:'B', desc:'Charge up for max damage. 10 arrows.',  special:'charge'},
+  {id:'crossbow',    name:'Crossbow',     icon:'🎯',  cat:'ranged',dmg:11, aspd:0.2, rarity:'A', desc:'Pre-loadable. High burst damage.',       special:'preload'},
+  // CRYSTALS
+  {id:'crystal',     name:'End Crystal',  icon:'🔮',  cat:'crystal',dmg:0, aspd:0,   rarity:'S', desc:'Place & explode. 10 crystals.',          special:'explode'},
+  // POTIONS
+  {id:'pot_strength',name:'Strength Pot', icon:'⚗',  cat:'potion',dmg:0,  aspd:0,   rarity:'A', desc:'+3 damage for 15s. Splash.',             special:'str_buff'},
+  {id:'pot_speed',   name:'Speed Pot',    icon:'🌀',  cat:'potion',dmg:0,  aspd:0,   rarity:'A', desc:'+30% move speed for 12s.',               special:'spd_buff'},
+  {id:'pot_heal',    name:'Healing Pot',  icon:'🧪',  cat:'potion',dmg:0,  aspd:0,   rarity:'B', desc:'Instantly restore 8 HP.',                special:'heal'},
+  {id:'pot_invis',   name:'Invis Pot',    icon:'👻',  cat:'potion',dmg:0,  aspd:0,   rarity:'A', desc:'Invisible for 8 seconds.',               special:'invis'},
+  // ARMOR ITEMS
+  {id:'shield',      name:'Shield',       icon:'🛡',  cat:'armor', dmg:0,  aspd:0,   rarity:'B', desc:'Block 80% damage while held. Axes break it.',special:'block'},
+  {id:'totem',       name:'Totem of Undying',icon:'🗿',cat:'armor',dmg:0, aspd:0,   rarity:'S', desc:'Auto-activates at 0 HP. 1-time use.',    special:'totem'},
+  // SPECIAL
+  {id:'fireball',    name:'Fireball',     icon:'🔥',  cat:'special',dmg:5, aspd:0.3, rarity:'A', desc:'Sets target ablaze. 3 fireballs.',       special:'fire'},
+  {id:'flint',       name:'Flint & Steel',icon:'✳',  cat:'special',dmg:0, aspd:0,   rarity:'B', desc:'Ignite ground. Area denial.',            special:'ignite'},
+  {id:'trident',     name:'Trident',      icon:'🔱',  cat:'ranged',dmg:9,  aspd:0.35,rarity:'A', desc:'Throwable. Returns after throw.',         special:'riptide'},
+  {id:'ender_pearl', name:'Ender Pearl',  icon:'🟢',  cat:'special',dmg:0, aspd:0,   rarity:'B', desc:'Teleport to target location.',           special:'teleport'},
+  {id:'fishing_rod', name:'Fishing Rod',  icon:'🎣',  cat:'special',dmg:0, aspd:0,   rarity:'B', desc:'Hook + drag enemy. Classic 1.8 utility.',special:'hook'},
+  {id:'lava_bucket', name:'Lava Bucket',  icon:'🌋',  cat:'special',dmg:0, aspd:0,   rarity:'A', desc:'Place lava. Melts enemies over time.',   special:'lava_place'},
+];
+
+// ---- GAME STATE ----
+let gameState = {
+  pvpMode: '1.8',
+  difficulty: 'easy',
+  botCount: 1,
+  arena: 'flat',
+  playerKit: [],
+  kitName: 'Default Kit',
+};
+
+// ---- SETTINGS ----
+let modeSelections = {
+  'pvp-mode-ctrl': '1.8',
+  'diff-ctrl': 'easy',
+  'bots-ctrl': '1',
+  'arena-ctrl': 'flat',
+};
+
+function setMode(ctrlId, btn, val) {
+  document.querySelectorAll(`#${ctrlId} .seg-btn`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  modeSelections[ctrlId] = val;
+}
+
+function getMode(ctrlId) { return modeSelections[ctrlId]; }
+
+// ---- SCREENS ----
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'kit-screen') renderItemGrid();
+}
+
+// ---- BG PARTICLES ----
+(function spawnBgParticles() {
+  const container = document.getElementById('bg-particles');
+  const colors = ['rgba(232,65,75,0.6)','rgba(255,140,0,0.4)','rgba(74,158,255,0.3)','rgba(180,74,255,0.3)'];
+  for (let i = 0; i < 20; i++) {
+    const orb = document.createElement('div');
+    orb.className = 'particle-orb';
+    const size = 4 + Math.random() * 8;
+    orb.style.cssText = `
+      width:${size}px;height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      left:${Math.random()*100}%;
+      animation-duration:${6+Math.random()*10}s;
+      animation-delay:${-Math.random()*10}s;
+      filter:blur(1px);
+    `;
+    container.appendChild(orb);
+  }
+})();
+
+// ---- KIT BUILDER ----
+let kitSlots = Array(9).fill(null);
+let selectedItemId = null;
+
+function renderItemGrid() {
+  const grid = document.getElementById('items-grid');
+  const cats = ['sword','axe','mace','ranged','crystal','potion','armor','special'];
+  grid.innerHTML = '';
+  cats.forEach(cat => {
+    const catItems = ITEMS.filter(i => i.cat === cat);
+    catItems.forEach(item => {
+      const inKit = kitSlots.some(s => s && s.id === item.id);
+      const div = document.createElement('div');
+      div.className = `item-card ${inKit ? 'in-kit' : ''}`;
+      div.innerHTML = `
+        <span class="item-rarity rarity-${item.rarity.toLowerCase()}">${item.rarity}</span>
+        <span class="item-icon">${item.icon}</span>
+        <div class="item-name">${item.name}</div>
+        <div class="item-stat">${item.cat.toUpperCase()}</div>
+      `;
+      div.onclick = () => addToKit(item);
+      div.onmouseenter = (e) => showTooltip(e, item);
+      div.onmouseleave = hideTooltip;
+      grid.appendChild(div);
+    });
+  });
+  renderKitSlots();
+}
+
+function addToKit(item) {
+  if (kitSlots.some(s => s && s.id === item.id)) { removeFromKit(item.id); return; }
+  const empty = kitSlots.findIndex(s => !s);
+  if (empty === -1) { document.getElementById('kit-warning').textContent = '⚠ Kit full! Remove an item first.'; return; }
+  kitSlots[empty] = {...item, count: getDefaultCount(item)};
+  document.getElementById('kit-warning').textContent = '';
+  renderItemGrid();
+}
+
+function removeFromKit(id) {
+  const i = kitSlots.findIndex(s => s && s.id === id);
+  if (i !== -1) kitSlots[i] = null;
+  renderItemGrid();
+}
+
+function getDefaultCount(item) {
+  if (item.cat === 'crystal') return 10;
+  if (item.cat === 'potion') return 3;
+  if (item.id === 'bow') return 64; // arrows
+  if (item.id === 'fireball') return 3;
+  if (item.id === 'ender_pearl') return 4;
+  return 1;
+}
+
+function renderKitSlots() {
+  const container = document.getElementById('kit-slots');
+  container.innerHTML = '';
+  kitSlots.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = `kit-slot ${item ? 'filled' : ''}`;
+    if (item) {
+      div.innerHTML = `<span class="slot-icon">${item.icon}</span><span class="slot-name">${item.name}</span><span class="remove-x">✕</span>`;
+      div.onclick = () => removeFromKit(item.id);
+    } else {
+      div.innerHTML = `<span style="font-size:1.2rem;color:#333;">+</span><span class="slot-name">empty</span>`;
+    }
+    container.appendChild(div);
+  });
+}
+
+function showTooltip(e, item) {
+  const tt = document.getElementById('tooltip');
+  document.getElementById('tt-rarity').textContent = ['C','B','A','S'].includes(item.rarity) ? `[${item.rarity}-TIER]` : '';
+  document.getElementById('tt-rarity').style.color = {C:'#aaa',B:'var(--accent2)',A:'var(--purple)',S:'var(--cyan)'}[item.rarity];
+  document.getElementById('tt-name').textContent = item.name;
+  let stats = item.desc;
+  if (item.dmg > 0) stats += `\nDMG: ${item.dmg} | SPD: ${Math.round(item.aspd*100)}%`;
+  document.getElementById('tt-stats').textContent = stats;
+  tt.classList.add('show');
+  moveTT(e);
+}
+
+function moveTT(e) {
+  const tt = document.getElementById('tooltip');
+  tt.style.left = (e.clientX + 12) + 'px';
+  tt.style.top = (e.clientY - 10) + 'px';
+}
+document.addEventListener('mousemove', e => { if(document.getElementById('tooltip').classList.contains('show')) moveTT(e); });
+function hideTooltip() { document.getElementById('tooltip').classList.remove('show'); }
+
+// ---- QUICK FIGHT ----
+function quickFight() {
+  // Auto-kit
+  kitSlots = [
+    {...ITEMS.find(i=>i.id==='sword_dia'), count:1},
+    {...ITEMS.find(i=>i.id==='pot_heal'), count:3},
+    {...ITEMS.find(i=>i.id==='bow'), count:64},
+    {...ITEMS.find(i=>i.id==='shield'), count:1},
+    {...ITEMS.find(i=>i.id==='ender_pearl'), count:4},
+    null,null,null,null
+  ];
+  gameState.pvpMode = '1.8';
+  gameState.difficulty = 'medium';
+  gameState.botCount = 1;
+  gameState.arena = 'flat';
+  gameState.kitName = 'Quick Kit';
+  startFight();
+}
+
+// ---- START FIGHT ----
+function startFight() {
+  const filledSlots = kitSlots.filter(s => s);
+  if (filledSlots.length === 0) {
+    document.getElementById('kit-warning').textContent = '⚠ Add at least one item to your kit!';
+    return;
+  }
+  gameState.pvpMode = getMode('pvp-mode-ctrl');
+  gameState.difficulty = getMode('diff-ctrl');
+  gameState.botCount = parseInt(getMode('bots-ctrl'));
+  gameState.arena = getMode('arena-ctrl');
+  gameState.playerKit = filledSlots;
+  gameState.kitName = document.getElementById('kit-name')?.value || 'Custom Kit';
+  showScreen('game-screen');
+  initGame();
+}
+
+// ============================================================
+//  GAME ENGINE
+// ============================================================
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+let gameLoop = null;
+let gameActive = false;
+
+// Game objects
+let player, bots, projectiles, crystals, particles, effects, lavaZones;
+let frameCount = 0;
+let startTime = 0;
+let playerKills = 0;
+let playerDeaths = 0;
+let totalDamageDealt = 0;
+let comboCount = 0;
+let comboTimer = 0;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+window.addEventListener('resize', () => { resize(); if(gameActive) drawArena(); });
+
+function initGame() {
+  resize();
+  gameActive = true;
+  frameCount = 0;
+  startTime = Date.now();
+  playerKills = 0;
+  playerDeaths = 0;
+  totalDamageDealt = 0;
+  comboCount = 0;
+  comboTimer = 0;
+  projectiles = [];
+  crystals = [];
+  particles = [];
+  effects = [];
+  lavaZones = [];
+
+  // Init player
+  player = {
+    x: W/2, y: H/2,
+    hp: 20, maxHp: 20,
+    shield: 0, maxShield: 0,
+    blocking: false,
+    totemActive: false,
+    invincibleTimer: 0,
+    statusEffects: {}, // {str: {dur, val}, spd: {dur}, invis: {dur}, fire: {dur, tick}}
+    hotbar: 0,
+    items: gameState.playerKit.map(item => ({...item})),
+    cooldowns: {},
+    bowCharge: 0,
+    isBowCharging: false,
+    crystalCount: 10,
+    speed: 4,
+    kills: 0,
+    lastAttackTime: 0,
+    attackSwing: 0, // for swing animation
+    facingRight: true,
+    fallHeight: 0,
+    vy: 0, vx: 0,
+    onGround: true,
+  };
+
+  // Give totem passive
+  if (player.items.find(i => i.id === 'totem')) player.totemActive = true;
+  // Give shield
+  if (player.items.find(i => i.id === 'shield')) { player.maxShield = 0; } // starts empty, grows
+
+  // Init bots
+  bots = [];
+  for (let i = 0; i < gameState.botCount; i++) {
+    const angle = (i / gameState.botCount) * Math.PI * 2;
+    const dist = 180 + i * 60;
+    bots.push(createBot(
+      W/2 + Math.cos(angle) * dist,
+      H/2 + Math.sin(angle) * dist,
+      i
+    ));
+  }
+
+  document.getElementById('mode-badge').textContent = getModeLabel();
+  renderHotbar();
+  updateHealthUI();
+
+  if (gameLoop) cancelAnimationFrame(gameLoop);
+  gameLoop = requestAnimationFrame(gameTick);
+
+  // Ping flicker
+  setInterval(() => {
+    if (!gameActive) return;
+    document.getElementById('ping-badge').textContent = `⬤ ${3 + Math.floor(Math.random()*5)}ms`;
+  }, 2000);
+}
+
+function getModeLabel() {
+  const labels = {'1.8':'1.8 PVP — No Sweep','crystal':'Crystal PVP','mace':'Mace PVP','1.21':'1.21 PVP'};
+  return (labels[gameState.pvpMode] || '1.8 PVP') + ' | ' + gameState.difficulty.toUpperCase();
+}
+
+// ---- BOT CREATION ----
+function createBot(x, y, idx) {
+  const diffStats = {
+    easy:   {reactionTime:80, aimErr:40, aggression:0.3, strafeFreq:0.01, retreatHp:4,  blockChance:0.05},
+    medium: {reactionTime:40, aimErr:18, aggression:0.6, strafeFreq:0.03, retreatHp:6,  blockChance:0.2},
+    hard:   {reactionTime:16, aimErr:7,  aggression:0.8, strafeFreq:0.06, retreatHp:8,  blockChance:0.45},
+    insane: {reactionTime:4,  aimErr:1,  aggression:1.0, strafeFreq:0.1,  retreatHp:10, blockChance:0.75},
+  };
+  const ds = diffStats[gameState.difficulty];
+  const names = ['xX_Cryst4l_Xx','h4rdcr3bot','VoidSlayer','NotchBot','HotbarBot','G0dBridge3r','AnnihilateAI'];
+  // Bot kit based on mode
+  let botItems = getBotKit();
+  return {
+    x, y, hp: 20, maxHp: 20,
+    shield: 0, maxShield: 0,
+    name: names[idx % names.length],
+    color: `hsl(${30+idx*80},80%,60%)`,
+    items: botItems,
+    hotbar: 0,
+    cooldowns: {},
+    speed: 2.5 + (idx * 0.2),
+    ai: {...ds},
+    state: 'chase', // chase, strafe, retreat, crystalPvp, ranged
+    stateTimer: 0,
+    strafeDir: 1,
+    strafeTimer: 0,
+    lastAttack: 0,
+    invincibleTimer: 0,
+    statusEffects: {},
+    vx: 0, vy: 0,
+    facingRight: true,
+    blocking: false,
+    crystalCount: 6,
+    totemActive: botItems.find(i=>i.id==='totem') ? true : false,
+    attackSwing: 0,
+    targetCrystal: null,
+    kills: 0,
+    fallHeight: 0,
+    onGround: true,
+  };
+}
+
+function getBotKit() {
+  const mode = gameState.pvpMode;
+  if (mode === 'crystal') {
+    return [
+      {...ITEMS.find(i=>i.id==='sword_dia'), count:1},
+      {...ITEMS.find(i=>i.id==='crystal'), count:10},
+      {...ITEMS.find(i=>i.id==='totem'), count:1},
+      {...ITEMS.find(i=>i.id==='pot_heal'), count:3},
+    ];
+  } else if (mode === 'mace') {
+    return [
+      {...ITEMS.find(i=>i.id==='mace'), count:1},
+      {...ITEMS.find(i=>i.id==='totem'), count:1},
+      {...ITEMS.find(i=>i.id==='pot_heal'), count:3},
+    ];
+  } else if (mode === '1.21') {
+    return [
+      {...ITEMS.find(i=>i.id==='axe_dia'), count:1},
+      {...ITEMS.find(i=>i.id==='shield'), count:1},
+      {...ITEMS.find(i=>i.id==='pot_heal'), count:3},
+      {...ITEMS.find(i=>i.id==='mace'), count:1},
+    ];
+  }
+  // 1.8
+  return [
+    {...ITEMS.find(i=>i.id==='sword_dia'), count:1},
+    {...ITEMS.find(i=>i.id==='bow'), count:64},
+    {...ITEMS.find(i=>i.id==='pot_heal'), count:3},
+    {...ITEMS.find(i=>i.id==='fishing_rod'), count:1},
+  ];
+}
+
+// ---- INPUT ----
+const keys = {};
+let mousePos = {x: W/2||400, y: H/2||300};
+let mouseDown = false;
+let rightMouseDown = false;
+let lastClickTime = 0;
+
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (!gameActive) return;
+  // Hotbar select
+  for (let i = 0; i < 9; i++) {
+    if (e.code === `Digit${i+1}`) { player.hotbar = Math.min(i, player.items.length-1); renderHotbar(); }
+  }
+  if (e.key === 'q' || e.key === 'Q') player.hotbar = Math.max(0, player.hotbar-1), renderHotbar();
+  if (e.key === 'f' || e.key === 'F') player.hotbar = Math.min(player.items.length-1, player.hotbar+1), renderHotbar();
+  // Shield block
+  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+    const shield = player.items.find(i => i.id === 'shield');
+    if (shield && !shield.broken) player.blocking = true;
+  }
+});
+document.addEventListener('keyup', e => {
+  keys[e.code] = false;
+  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') player.blocking = false;
+  if (e.code === 'Space' && player.isBowCharging) releaseBow();
+});
+
+canvas.addEventListener('mousemove', e => {
+  const r = canvas.getBoundingClientRect();
+  mousePos = {x: e.clientX - r.left, y: e.clientY - r.top};
+});
+
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 0) { mouseDown = true; handleClick(); }
+  if (e.button === 2) { rightMouseDown = true; handleRightClick(); }
+  e.preventDefault();
+});
+canvas.addEventListener('mouseup', e => {
+  if (e.button === 0) { mouseDown = false; if(player.isBowCharging) releaseBow(); }
+  if (e.button === 2) { rightMouseDown = false; player.blocking = false; }
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// ---- ARENA GEOMETRY ----
+let arenaObstacles = []; // {x,y,w,h,color}
+let arenaEdge = 400; // half-size of arena
+
+function buildArena() {
+  arenaObstacles = [];
+  const type = gameState.arena;
+  if (type === 'pillars') {
+    const positions = [[-150,-120],[150,-120],[-150,120],[150,120],[0,-200],[0,200],[-250,0],[250,0]];
+    positions.forEach(([px,py]) => {
+      arenaObstacles.push({x:W/2+px-16,y:H/2+py-40,w:32,h:80,color:'#7a7a7a',top:'#9a9a9a'});
+    });
+  } else if (type === 'sky') {
+    // Floating platforms
+    const plats = [[-200,20,120,16],[200,-30,100,16],[0,-100,140,16],[-280,60,80,16],[280,0,80,16],[0,80,200,16]];
+    plats.forEach(([px,py,pw,ph]) => {
+      arenaObstacles.push({x:W/2+px-pw/2,y:H/2+py,w:pw,h:ph,color:'#5a8a3c',top:'#4a7a2c'});
+    });
+    arenaEdge = 500;
+  }
+}
+
+// ---- DRAW ARENA ----
+function drawArena() {
+  // Sky gradient
+  const skyGrad = ctx.createLinearGradient(0,0,0,H);
+  if (gameState.arena === 'sky') {
+    skyGrad.addColorStop(0,'#1a3a6a');
+    skyGrad.addColorStop(1,'#0a1a3a');
+  } else {
+    skyGrad.addColorStop(0,'#87CEEB');
+    skyGrad.addColorStop(1,'#c8e8ff');
+  }
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0,0,W,H);
+
+  if (gameState.arena !== 'sky') {
+    // Ground
+    ctx.fillStyle = '#5a8a3c';
+    ctx.fillRect(0, H/2+160, W, H);
+    ctx.fillStyle = '#4a7a2c';
+    ctx.fillRect(0, H/2+155, W, 10);
+    // Grid lines on ground
+    ctx.strokeStyle = 'rgba(0,0,0,0.05)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 32) {
+      ctx.beginPath(); ctx.moveTo(x, H/2+160); ctx.lineTo(x, H); ctx.stroke();
+    }
+
+    // Arena boundary lines
+    ctx.strokeStyle = 'rgba(232,65,75,0.3)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8,8]);
+    ctx.strokeRect(W/2-arenaEdge, H/2-280, arenaEdge*2, 440);
+    ctx.setLineDash([]);
+  }
+
+  // Draw obstacles/platforms
+  arenaObstacles.forEach(ob => {
+    ctx.fillStyle = ob.color;
+    ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
+    if (ob.top) {
+      ctx.fillStyle = ob.top;
+      ctx.fillRect(ob.x, ob.y, ob.w, 6);
+    }
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.fillRect(ob.x+4, ob.y+ob.h, ob.w-4, 8);
+  });
+}
+
+// ---- DRAW ENTITY ----
+function drawPlayer(ent, isPlayer=false) {
+  const {x, y} = ent;
+  const alpha = (ent.statusEffects.invis && !isPlayer) ? 0.15 : 1;
+  ctx.globalAlpha = alpha;
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.beginPath();
+  ctx.ellipse(x, y+2, 14, 5, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // Body
+  const bodyColor = isPlayer ? '#3a6aaa' : ent.color;
+  ctx.fillStyle = ent.invincibleTimer > 0 ? 'rgba(255,100,100,0.8)' : bodyColor;
+  ctx.fillRect(x-10, y-28, 20, 26);
+
+  // Head
+  ctx.fillStyle = isPlayer ? '#f5c080' : '#f5c080';
+  ctx.fillRect(x-9, y-46, 18, 18);
+
+  // Eyes
+  ctx.fillStyle = '#222';
+  const eyeDir = ent.facingRight ? 1 : -1;
+  ctx.fillRect(x+(eyeDir*2)-1, y-41, 3, 3);
+
+  // Armor tint
+  if (isPlayer) {
+    ctx.fillStyle = 'rgba(100,150,255,0.35)';
+    ctx.fillRect(x-10, y-28, 20, 26);
+  } else {
+    ctx.fillStyle = 'rgba(200,80,80,0.3)';
+    ctx.fillRect(x-10, y-28, 20, 26);
+  }
+
+  // Weapon/item swing
+  const curItem = ent.items[ent.hotbar];
+  if (curItem && ent.attackSwing > 0) {
+    const swingAngle = ent.facingRight ? -ent.attackSwing : Math.PI + ent.attackSwing;
+    ctx.save();
+    ctx.translate(x + (ent.facingRight ? 10 : -10), y-18);
+    ctx.rotate(swingAngle);
+    ctx.font = '18px serif';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(curItem.icon, -6, 6);
+    ctx.restore();
+  } else if (curItem) {
+    ctx.font = '16px serif';
+    ctx.fillText(curItem.icon, x + (ent.facingRight ? 12 : -26), y-16);
+  }
+
+  // Shield block visual
+  if (ent.blocking) {
+    ctx.fillStyle = 'rgba(74,158,255,0.6)';
+    const sx = ent.facingRight ? x+12 : x-22;
+    ctx.fillRect(sx, y-35, 10, 28);
+  }
+
+  // Name tag
+  if (!isPlayer) {
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    const nw = ent.name.length * 5.5 + 8;
+    ctx.fillRect(x - nw/2, y-62, nw, 14);
+    ctx.fillStyle = '#fff';
+    ctx.font = '10px "Rajdhani",sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(ent.name, x, y-51);
+    ctx.textAlign = 'left';
+
+    // Bot health bar
+    const bw = 44;
+    ctx.fillStyle = '#111';
+    ctx.fillRect(x-bw/2, y-50, bw, 5);
+    ctx.fillStyle = ent.hp/ent.maxHp > 0.5 ? '#4aff6a' : ent.hp/ent.maxHp > 0.25 ? '#ff9900' : '#ff4040';
+    ctx.fillRect(x-bw/2, y-50, bw*(ent.hp/ent.maxHp), 5);
+  }
+
+  // Status indicators
+  if (ent.statusEffects.str) { ctx.font='10px serif'; ctx.fillText('⚡',x-6,y-54); }
+  if (ent.statusEffects.fire) { ctx.font='12px serif'; ctx.fillText('🔥',x-6,y-62); }
+
+  ctx.globalAlpha = 1;
+}
+
+// ---- DRAW PROJECTILES ----
+function drawProjectiles() {
+  projectiles.forEach(p => {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    if (p.type === 'arrow') {
+      ctx.rotate(Math.atan2(p.vy, p.vx));
+      ctx.fillStyle = '#8B6914';
+      ctx.fillRect(-8, -1.5, 16, 3);
+      ctx.fillStyle = '#555';
+      ctx.fillRect(6, -1.5, 4, 3);
+    } else if (p.type === 'fireball') {
+      ctx.font = '18px serif';
+      ctx.fillText('🔥', -9, 7);
+    } else if (p.type === 'trident') {
+      ctx.rotate(Math.atan2(p.vy, p.vx));
+      ctx.font = '18px serif';
+      ctx.fillText('🔱', -9, 7);
+    } else if (p.type === 'fishHook') {
+      ctx.fillStyle = '#ccc';
+      ctx.beginPath();
+      ctx.arc(0,0,3,0,Math.PI*2);
+      ctx.fill();
+      // Line back to thrower
+      if (p.owner) {
+        ctx.strokeStyle = 'rgba(200,200,200,0.4)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.lineTo(p.owner.x - p.x, p.owner.y - p.y);
+        ctx.stroke();
+      }
+    } else if (p.type === 'pearl') {
+      ctx.fillStyle = '#4aff6a';
+      ctx.beginPath();
+      ctx.arc(0,0,5,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  });
+}
+
+// ---- DRAW CRYSTALS ----
+function drawCrystals() {
+  crystals.forEach(c => {
+    const pulse = Math.sin(frameCount * 0.08 + c.phase) * 4;
+    ctx.save();
+    ctx.translate(c.x, c.y + pulse);
+    ctx.rotate(frameCount * 0.03 + c.phase);
+    // Crystal shape
+    const grad = ctx.createRadialGradient(0,0,2,0,0,14);
+    grad.addColorStop(0,'rgba(180,74,255,0.9)');
+    grad.addColorStop(0.5,'rgba(100,200,255,0.6)');
+    grad.addColorStop(1,'rgba(100,200,255,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const a = (i/8)*Math.PI*2;
+      const r = i%2===0 ? 14 : 6;
+      i===0 ? ctx.moveTo(Math.cos(a)*r, Math.sin(a)*r) : ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r);
+    }
+    ctx.closePath();
+    ctx.fill();
+    // Glow
+    ctx.shadowColor = '#b44aff';
+    ctx.shadowBlur = 20;
+    ctx.fill();
+    ctx.restore();
+
+    // HP bar above crystal
+    ctx.fillStyle = '#111';
+    ctx.fillRect(c.x-18, c.y-36, 36, 5);
+    ctx.fillStyle = '#b44aff';
+    ctx.fillRect(c.x-18, c.y-36, 36*(c.hp/c.maxHp), 5);
+  });
+}
+
+// ---- DRAW PARTICLES ----
+function drawParticles() {
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.1;
+    p.life--;
+    ctx.globalAlpha = p.life / p.maxLife;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+function spawnParticles(x, y, color, count=8, speed=3) {
+  for (let i = 0; i < count; i++) {
+    const a = Math.random()*Math.PI*2;
+    const s = (0.5+Math.random()*0.5)*speed;
+    particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,life:20+Math.random()*15,maxLife:35,color,size:2+Math.random()*3});
+  }
+}
+
+function spawnDmgNum(x, y, dmg, color='#ff4040') {
+  const el = document.createElement('div');
+  el.className = 'dmg-num';
+  el.style.color = color;
+  el.style.left = (x + (Math.random()-0.5)*30) + 'px';
+  el.style.top = (y - 40) + 'px';
+  el.textContent = dmg > 0 ? `-${dmg.toFixed(1)}` : (dmg===0?'BLOCKED':'MISS');
+  document.getElementById('game-hud').appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// ---- LAVA ZONES ----
+function drawLava() {
+  lavaZones = lavaZones.filter(l => l.life > 0);
+  lavaZones.forEach(l => {
+    l.life--;
+    ctx.fillStyle = `rgba(255,80,0,${0.6*(l.life/l.maxLife)})`;
+    ctx.beginPath();
+    ctx.ellipse(l.x, l.y, 30, 18, 0, 0, Math.PI*2);
+    ctx.fill();
+    // Damage entities in range
+    if (frameCount % 30 === 0) {
+      const all = [player, ...bots];
+      all.forEach(e => {
+        const d = dist(e.x, e.y, l.x, l.y);
+        if (d < 35) {
+          applyDamage(e, 2, null, 'fire');
+        }
+      });
+    }
+  });
+}
+
+// ---- GAME TICK ----
+function gameTick() {
+  if (!gameActive) return;
+  frameCount++;
+  ctx.clearRect(0,0,W,H);
+
+  drawArena();
+  drawLava();
+  drawCrystals();
+  drawProjectiles();
+  drawParticles();
+
+  // Move projectiles
+  updateProjectiles();
+  // Move player
+  updatePlayer();
+  // Update bots
+  bots.forEach(b => updateBot(b));
+
+  // Draw player & bots
+  bots.forEach(b => drawPlayer(b, false));
+  drawPlayer(player, true);
+
+  // Update HUD
+  updateHealthUI();
+  updateStatusEffects();
+  updateCombo();
+  renderHotbar();
+
+  // Cleanup
+  if (player.hp <= 0) { handlePlayerDeath(); return; }
+  if (bots.every(b => b.hp <= 0)) { handleVictory(); return; }
+
+  gameLoop = requestAnimationFrame(gameTick);
+}
+
+// ---- PLAYER UPDATE ----
+function updatePlayer() {
+  const spd = player.speed * (player.statusEffects.spd ? 1.3 : 1) * (player.blocking ? 0.6 : 1);
+
+  if (keys['KeyA'] || keys['ArrowLeft']) { player.x -= spd; player.facingRight = false; }
+  if (keys['KeyD'] || keys['ArrowRight']) { player.x += spd; player.facingRight = true; }
+  if (keys['KeyW'] || keys['ArrowUp']) player.y -= spd;
+  if (keys['KeyS'] || keys['ArrowDown']) player.y += spd;
+
+  // Boundary
+  player.x = Math.max(W/2-arenaEdge+20, Math.min(W/2+arenaEdge-20, player.x));
+  player.y = Math.max(H/2-250, Math.min(H/2+140, player.y));
+
+  player.facingRight = mousePos.x > player.x;
+
+  // Update swing
+  if (player.attackSwing > 0) player.attackSwing -= 0.15;
+
+  // Cooldowns
+  Object.keys(player.cooldowns).forEach(k => { if(player.cooldowns[k] > 0) player.cooldowns[k]--; });
+
+  // Status effect timers
+  tickStatusEffects(player);
+
+  // Invincibility
+  if (player.invincibleTimer > 0) player.invincibleTimer--;
+
+  // Bow hold
+  if (player.isBowCharging) {
+    player.bowCharge = Math.min(60, player.bowCharge + 1);
+  }
+
+  // Auto-attack if holding mouse
+  if (mouseDown && frameCount - lastClickTime > getAttackRate(player)) {
+    handleClick();
+    lastClickTime = frameCount;
+  }
+}
+
+// ---- BOT UPDATE (AI) ----
+function updateBot(bot) {
+  if (bot.hp <= 0) return;
+  const ai = bot.ai;
+  bot.stateTimer++;
+
+  // Cooldowns
+  Object.keys(bot.cooldowns).forEach(k => { if(bot.cooldowns[k]>0) bot.cooldowns[k]--; });
+  if (bot.invincibleTimer > 0) bot.invincibleTimer--;
+  tickStatusEffects(bot);
+  if (bot.attackSwing > 0) bot.attackSwing -= 0.12;
+
+  const dx = player.x - bot.x;
+  const dy = player.y - bot.y;
+  const d = Math.sqrt(dx*dx+dy*dy);
+  bot.facingRight = dx > 0;
+
+  // State machine
+  if (bot.hp/bot.maxHp < 0.3 && bot.stateTimer % 60 < 30) {
+    bot.state = 'retreat';
+  } else if (d > 300 && bot.items.find(i=>i.cat==='ranged') && Math.random()<ai.aggression*0.01) {
+    bot.state = 'ranged';
+  } else if (bot.items.find(i=>i.id==='crystal') && bot.crystalCount > 0 && Math.random()<0.005) {
+    bot.state = 'crystalPvp';
+  } else {
+    bot.state = d > 80 ? 'chase' : 'strafe';
+  }
+
+  const spd = bot.speed;
+
+  if (bot.state === 'chase') {
+    bot.x += (dx/d)*spd;
+    bot.y += (dy/d)*spd*0.5;
+  } else if (bot.state === 'strafe') {
+    // Strafe around player
+    if (bot.stateTimer % Math.floor(1/ai.strafeFreq) === 0) bot.strafeDir *= -1;
+    const perpX = -dy/d, perpY = dx/d;
+    bot.x += perpX * spd * bot.strafeDir * 1.2;
+    bot.y += perpY * spd * bot.strafeDir * 0.6;
+    // Still approach slightly
+    bot.x += (dx/d)*spd*0.3;
+  } else if (bot.state === 'retreat') {
+    bot.x -= (dx/d)*spd*1.2;
+    bot.y -= (dy/d)*spd*0.8;
+    // Heal if have potion
+    const healPot = bot.items.find(i=>i.id==='pot_heal' && i.count>0);
+    if (healPot && !bot.cooldowns.heal && bot.hp < bot.maxHp-4) {
+      healPot.count--;
+      bot.hp = Math.min(bot.maxHp, bot.hp+8);
+      bot.cooldowns.heal = 120;
+      spawnParticles(bot.x, bot.y, '#ff4aaa', 6);
+    }
+  } else if (bot.state === 'ranged') {
+    // Keep distance, shoot
+    if (d < 200) {
+      bot.x -= (dx/d)*spd;
+    } else {
+      bot.x += (dx/d)*spd*0.3;
+    }
+  } else if (bot.state === 'crystalPvp') {
+    // Place crystal near player
+    if (!bot.cooldowns.crystal && bot.crystalCount > 0) {
+      const cx = player.x + (Math.random()-0.5)*60;
+      const cy = player.y - 20;
+      placeCrystal(cx, cy, bot);
+      bot.crystalCount--;
+      bot.cooldowns.crystal = 40;
+      // Immediately explode nearest crystal
+      setTimeout(() => {
+        if (crystals.length > 0) {
+          const c = crystals[crystals.length-1];
+          explodeCrystal(c);
+        }
+      }, 300);
+    }
+  }
+
+  // Attack
+  const attackRange = getWeaponRange(bot.items[bot.hotbar]);
+  if (d < attackRange && bot.stateTimer % Math.max(4, ai.reactionTime) === 0) {
+    botAttack(bot, d);
+  }
+
+  // Hotbar switch
+  if (bot.stateTimer % 90 === 0) {
+    // Switch to best weapon for situation
+    const swordIdx = bot.items.findIndex(i=>i.cat==='sword'||i.cat==='axe'||i.cat==='mace');
+    const bowIdx = bot.items.findIndex(i=>i.cat==='ranged');
+    if (d > 250 && bowIdx !== -1) bot.hotbar = bowIdx;
+    else if (swordIdx !== -1) bot.hotbar = swordIdx;
+  }
+
+  // Boundary
+  bot.x = Math.max(W/2-arenaEdge+20, Math.min(W/2+arenaEdge-20, bot.x));
+  bot.y = Math.max(H/2-250, Math.min(H/2+140, bot.y));
+
+  // Shield
+  const shieldItem = bot.items.find(i=>i.id==='shield'&&!i.broken);
+  if (shieldItem && d > 100 && Math.random() < ai.blockChance * 0.02) {
+    bot.blocking = true;
+  } else {
+    bot.blocking = false;
+  }
+}
+
+function botAttack(bot, dist) {
+  const item = bot.items[bot.hotbar];
+  if (!item) return;
+  const ai = bot.ai;
+  const aimErr = ai.aimErr;
+
+  if (item.cat === 'sword' || item.cat === 'axe' || item.cat === 'mace') {
+    if (dist < getWeaponRange(item)) {
+      const dmg = calculateDamage(item, bot, null, 0);
+      applyDamage(player, dmg, bot, item.cat);
+      bot.attackSwing = 1.2;
+      spawnParticles(player.x, player.y, '#ff4040', 5);
+    }
+  } else if (item.cat === 'ranged') {
+    const errX = (Math.random()-0.5)*aimErr*2;
+    const errY = (Math.random()-0.5)*aimErr;
+    fireProjectile(bot, player.x+errX, player.y+errY, item);
+  }
+
+  // Potion use
+  if (Math.random() < 0.005 && bot.hp < bot.maxHp*0.5) {
+    const pot = bot.items.find(i=>i.id==='pot_heal'&&i.count>0);
+    if (pot) { pot.count--; bot.hp=Math.min(bot.maxHp,bot.hp+8); }
+  }
+}
+
+// ---- CLICK HANDLER (PLAYER ATTACK) ----
+function handleClick() {
+  if (!gameActive) return;
+  const item = player.items[player.hotbar];
+  if (!item) return;
+
+  if (item.cat === 'ranged' && item.id !== 'crossbow') {
+    player.isBowCharging = true;
+    return;
+  }
+
+  if (item.id === 'crystal') {
+    if (item.count <= 0) { killFeed('No crystals left!', '#888'); return; }
+    placeCrystal(mousePos.x, mousePos.y, player);
+    item.count--;
+    renderHotbar();
+    return;
+  }
+
+  if (item.id === 'ender_pearl') {
+    if (item.count <= 0) return;
+    item.count--;
+    // Teleport with delay
+    const tx = mousePos.x, ty = mousePos.y;
+    spawnParticles(player.x, player.y, '#4aff6a', 10);
+    projectiles.push({x:player.x,y:player.y,vx:(tx-player.x)/20,vy:(ty-player.y)/20,type:'pearl',owner:player,target:{x:tx,y:ty},life:25,isPearl:true});
+    renderHotbar();
+    return;
+  }
+
+  if (item.id === 'fireball') {
+    if (item.count <= 0) return;
+    item.count--;
+    fireProjectile(player, mousePos.x, mousePos.y, item);
+    renderHotbar();
+    return;
+  }
+
+  if (item.id === 'fishing_rod') {
+    if (!player.cooldowns.rod) {
+      fireProjectile(player, mousePos.x, mousePos.y, item);
+      player.cooldowns.rod = 40;
+    }
+    return;
+  }
+
+  if (item.id === 'lava_bucket') {
+    lavaZones.push({x:mousePos.x, y:mousePos.y, life:300, maxLife:300});
+    item.id = 'empty_bucket';
+    item.name = 'Empty Bucket';
+    item.icon = '🪣';
+    renderHotbar();
+    return;
+  }
+
+  if (item.id === 'pot_heal') {
+    if (item.count <= 0) return;
+    item.count--;
+    player.hp = Math.min(player.maxHp, player.hp+8);
+    spawnParticles(player.x, player.y, '#ff4aaa', 8);
+    killFeed('Healed +8 HP', '#ff4aaa');
+    renderHotbar();
+    return;
+  }
+  if (item.id === 'pot_strength') {
+    if (item.count <= 0) return;
+    item.count--;
+    player.statusEffects.str = {dur: 15*60, val:3};
+    killFeed('Strength II active!', '#ff9900');
+    renderHotbar();
+    return;
+  }
+  if (item.id === 'pot_speed') {
+    if (item.count <= 0) return;
+    item.count--;
+    player.statusEffects.spd = {dur: 12*60};
+    killFeed('Speed II active!', '#4a9eff');
+    renderHotbar();
+    return;
+  }
+  if (item.id === 'pot_invis') {
+    if (item.count <= 0) return;
+    item.count--;
+    player.statusEffects.invis = {dur: 8*60};
+    killFeed('Invisible!', '#aaa');
+    renderHotbar();
+    return;
+  }
+  if (item.id === 'crossbow') {
+    fireProjectile(player, mousePos.x, mousePos.y, item);
+    player.cooldowns.crossbow = 50;
+    return;
+  }
+
+  // Melee attack
+  if (item.cat === 'sword' || item.cat === 'axe' || item.cat === 'mace') {
+    const rate = getAttackRate(player);
+    if (player.cooldowns.melee) return;
+    player.cooldowns.melee = rate;
+    player.attackSwing = 1.5;
+
+    // Check all bots in range
+    let hit = false;
+    bots.forEach(bot => {
+      if (bot.hp <= 0) return;
+      const d = dist(player.x, player.y, bot.x, bot.y);
+      const range = getWeaponRange(item);
+      if (d < range) {
+        hit = true;
+        const dmg = calculateDamage(item, player, bot, 0);
+        const blocked = bot.blocking && !item.special?.includes('shield_break');
+        if (blocked) {
+          const bd = dmg * 0.2;
+          applyDamage(bot, bd, player, item.cat);
+          spawnParticles(bot.x, bot.y, '#4a9eff', 6);
+          spawnDmgNum(bot.x, bot.y, 0, '#4a9eff');
+          // Break shield on axe
+          if (item.special === 'shield_break') {
+            const sh = bot.items.find(i=>i.id==='shield');
+            if (sh) sh.broken = true;
+            killFeed(`${bot.name}'s shield broken!`, '#ff8c00');
+          }
+        } else {
+          applyDamage(bot, dmg, player, item.cat);
+          spawnParticles(bot.x, bot.y, '#ff4040', 6);
+          spawnDmgNum(bot.x, bot.y, dmg);
+          totalDamageDealt += dmg;
+          comboCount++;
+          comboTimer = 120;
+          // Knockback
+          const kbForce = item.cat==='axe' ? 6 : 4;
+          bot.x += (bot.x-player.x)/d*kbForce;
+          bot.y += (bot.y-player.y)/d*kbForce;
+        }
+      }
+    });
+    if (!hit) {
+      spawnParticles(player.x+(player.facingRight?30:-30), player.y-20, '#555', 3, 1);
+    }
+  }
+}
+
+function handleRightClick() {
+  // Right click: explode nearest crystal, or use shield
+  const nearCrystal = crystals.find(c => dist(mousePos.x, mousePos.y, c.x, c.y) < 40);
+  if (nearCrystal && nearCrystal.owner === player) {
+    explodeCrystal(nearCrystal);
+    return;
+  }
+  // Right click on enemy crystal to also explode (crystal pvp)
+  if (nearCrystal) {
+    explodeCrystal(nearCrystal);
+  }
+}
+
+function releaseBow() {
+  if (!player.isBowCharging) return;
+  player.isBowCharging = false;
+  const bow = player.items.find(i=>i.cat==='ranged'&&(i.id==='bow'||i.id==='trident'));
+  if (!bow || bow.count <= 0) { player.bowCharge=0; return; }
+  const chargeRatio = player.bowCharge/60;
+  if (chargeRatio < 0.1) { player.bowCharge=0; return; }
+  if (bow.id !== 'trident') bow.count--;
+  fireProjectile(player, mousePos.x, mousePos.y, bow, chargeRatio);
+  player.bowCharge = 0;
+  renderHotbar();
+}
+
+// ---- FIRE PROJECTILE ----
+function fireProjectile(owner, tx, ty, item, charge=1) {
+  const dx = tx - owner.x, dy = ty - owner.y;
+  const d = Math.sqrt(dx*dx+dy*dy)||1;
+  let speed = 14 * charge;
+  const types = {bow:'arrow',crossbow:'arrow',trident:'trident',fireball:'fireball',fishing_rod:'fishHook'};
+  const type = types[item.id] || 'arrow';
+  projectiles.push({
+    x: owner.x, y: owner.y-10,
+    vx: (dx/d)*speed, vy: (dy/d)*speed,
+    type,
+    owner,
+    damage: item.dmg * charge * (owner.statusEffects?.str ? 1+(owner.statusEffects.str.val/10) : 1),
+    life: 80,
+    item,
+    returned: false,
+  });
+}
+
+// ---- UPDATE PROJECTILES ----
+function updateProjectiles() {
+  projectiles = projectiles.filter(p => p.life > 0);
+  projectiles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    if (p.type !== 'fishHook') p.vy += 0.18; // gravity
+    p.life--;
+
+    // Pearl teleport
+    if (p.isPearl) {
+      if (p.life < 5) {
+        player.x = p.x;
+        player.y = p.y;
+        spawnParticles(p.x, p.y, '#4aff6a', 12);
+        p.life = 0;
+      }
+      return;
+    }
+
+    // Trident return
+    if (p.type === 'trident' && p.life < 20) {
+      const dx = p.owner.x - p.x, dy = p.owner.y - p.y;
+      const d = Math.sqrt(dx*dx+dy*dy)||1;
+      p.vx = (dx/d)*12;
+      p.vy = (dy/d)*12;
+    }
+
+    // Fish hook pull
+    if (p.type === 'fishHook' && p.life < 50) {
+      const target = p.owner === player ? bots[0] : player;
+      if (target && target.hp > 0) {
+        const dx = p.x - target.x, dy = p.y - target.y;
+        const d = Math.sqrt(dx*dx+dy*dy)||1;
+        if (d < 20) {
+          // Pull target toward owner
+          const ox = p.owner.x-target.x, oy = p.owner.y-target.y;
+          const od = Math.sqrt(ox*ox+oy*oy)||1;
+          target.x += (ox/od)*4;
+          target.y += (oy/od)*4;
+          p.life = 0;
+          killFeed(p.owner===player?'Hooked!':p.owner.name+' hooked you!','#ff9900');
+        }
+      }
+    }
+
+    // Hit detection
+    const targets = p.owner === player ? bots : [player];
+    targets.forEach(t => {
+      if (t.hp <= 0) return;
+      const d = dist(p.x, p.y, t.x, t.y);
+      if (d < 22) {
+        let dmg = p.damage;
+        if (t.blocking) dmg *= 0.2;
+        applyDamage(t, dmg, p.owner, p.type);
+        if (p.owner === player) { totalDamageDealt += dmg; comboCount++; comboTimer=90; }
+        spawnParticles(t.x, t.y, p.type==='fireball'?'#ff6600':'#ffcc00', 6);
+        spawnDmgNum(t.x, t.y, dmg);
+        if (p.type === 'fireball' && !t.statusEffects) t.statusEffects = {};
+        if (p.type === 'fireball') t.statusEffects.fire = {dur:60, tick:0};
+        p.life = 0;
+      }
+    });
+
+    // Bounds
+    if (p.x<0||p.x>W||p.y>H+50) p.life=0;
+  });
+}
+
+// ---- CRYSTALS ----
+function placeCrystal(x, y, owner) {
+  crystals.push({
+    x, y: Math.min(y, H/2+120),
+    hp: 10, maxHp: 10,
+    owner,
+    phase: Math.random()*Math.PI*2,
+  });
+}
+
+function explodeCrystal(c) {
+  const idx = crystals.indexOf(c);
+  if (idx !== -1) crystals.splice(idx, 1);
+  spawnParticles(c.x, c.y, '#b44aff', 20, 6);
+  spawnParticles(c.x, c.y, '#ffffff', 10, 4);
+
+  // AOE damage
+  const all = [player, ...bots];
+  all.forEach(e => {
+    if (e.hp <= 0) return;
+    const d = dist(e.x, e.y, c.x, c.y);
+    if (d < 100) {
+      const dmg = (1 - d/100) * 18;
+      if (e === player && c.owner === player) return; // don't self-explode (basic safety)
+      applyDamage(e, dmg, c.owner, 'crystal');
+      spawnDmgNum(e.x, e.y, dmg, '#b44aff');
+    }
+  });
+
+  // Chain react nearby crystals
+  crystals.filter(other => dist(other.x,other.y,c.x,c.y) < 60).forEach(other => {
+    setTimeout(() => explodeCrystal(other), 200);
+  });
+}
+
+// ---- DAMAGE ----
+function calculateDamage(item, attacker, target, fallHeight=0) {
+  let dmg = item.dmg || 0;
+  // Strength
+  if (attacker.statusEffects?.str) dmg += attacker.statusEffects.str.val;
+  // 1.8: no sweep, just base dmg
+  // Mace fall bonus
+  if (item.id === 'mace') dmg += fallHeight * 2;
+  // Critical (1.21 axe)
+  if (item.cat === 'axe' && Math.random() < 0.15) dmg *= 1.4;
+  // Netherite KB resist
+  if (target?.id === 'sword_netherite' || target?.statusEffects?.kb_resist) dmg *= 0.92;
+  return parseFloat(dmg.toFixed(1));
+}
+
+function applyDamage(target, dmg, source, type) {
+  if (target.invincibleTimer > 0) return;
+  if (target.hp <= 0) return;
+
+  target.hp -= dmg;
+  target.invincibleTimer = 8;
+
+  if (target.hp <= 0) {
+    // Totem check
+    if (target.totemActive) {
+      target.hp = 4;
+      target.totemActive = false;
+      target.statusEffects.str = {dur:120, val:2};
+      killFeed((target === player ? 'You' : target.name) + ' popped totem!', '#ffd700');
+      spawnParticles(target.x, target.y, '#ffd700', 20, 5);
+      return;
+    }
+    // Death
+    if (target === player) return; // handled in gameTick
+    // Bot died
+    target.hp = 0;
+    playerKills++;
+    killFeed(`☠ ${target.name} eliminated!`, '#e8414b');
+    spawnParticles(target.x, target.y, '#ff4040', 30, 5);
+    // Respawn after delay (for multi-bot mode)
+    if (gameState.botCount > 1) {
+      setTimeout(() => {
+        if (!gameActive) return;
+        target.hp = target.maxHp;
+        target.x = W/2 + (Math.random()-0.5)*300;
+        target.y = H/2 - 100;
+        target.invincibleTimer = 60;
+      }, 3000);
+    }
+  }
+}
+
+function handlePlayerDeath() {
+  playerDeaths++;
+  if (bots.every(b => b.hp <= 0)) { handleVictory(); return; }
+  if (gameState.botCount === 1) { handleDefeat(); return; }
+  // Respawn
+  player.hp = player.maxHp;
+  player.x = W/2;
+  player.y = H/2 - 50;
+  player.invincibleTimer = 120;
+  killFeed('You were eliminated! Respawning...', '#888');
+  gameLoop = requestAnimationFrame(gameTick);
+}
+
+// ---- STATUS EFFECTS ----
+function tickStatusEffects(ent) {
+  Object.keys(ent.statusEffects).forEach(k => {
+    const se = ent.statusEffects[k];
+    se.dur--;
+    if (k === 'fire') {
+      se.tick = (se.tick||0)+1;
+      if (se.tick % 20 === 0) {
+        ent.hp -= 1;
+        if (ent === player) spawnDmgNum(player.x, player.y, 1, '#ff6600');
+      }
+    }
+    if (se.dur <= 0) delete ent.statusEffects[k];
+  });
+}
+
+// ---- HELPERS ----
+function dist(x1,y1,x2,y2) { return Math.sqrt((x2-x1)**2+(y2-y1)**2); }
+function getAttackRate(ent) {
+  const item = ent.items[ent.hotbar];
+  if (!item) return 10;
+  if (gameState.pvpMode === '1.8') return Math.floor(10 / (item.aspd||0.7));
+  return Math.floor(8 / (item.aspd||0.7));
+}
+function getWeaponRange(item) {
+  if (!item) return 60;
+  if (item.cat === 'axe') return 65;
+  if (item.cat === 'mace') return 70;
+  return 60;
+}
+
+// ---- UI ----
+function updateHealthUI() {
+  if (!player) return;
+  const hpPct = Math.max(0, player.hp/player.maxHp)*100;
+  document.getElementById('p-hp-bar').style.width = hpPct+'%';
+  document.getElementById('p-hp-bar').style.background = hpPct>50?'linear-gradient(90deg,#e84040,#ff6060)':hpPct>25?'linear-gradient(90deg,#ff9900,#ffcc00)':'linear-gradient(90deg,#ff2020,#ff5050)';
+  document.getElementById('p-hp-text').textContent = `${Math.max(0,Math.ceil(player.hp))}/${player.maxHp}`;
+}
+
+function updateStatusEffects() {
+  const el = document.getElementById('status-effects');
+  el.innerHTML = '';
+  const se = player.statusEffects;
+  const badges = {
+    str: {label:'⚡ STR', color:'#ff9900', border:'#ff6600'},
+    spd: {label:'💨 SPD', color:'#4a9eff', border:'#2277cc'},
+    invis:{label:'👻 INVIS',color:'#aaa',border:'#666'},
+    fire: {label:'🔥 BURN',color:'#ff4400',border:'#cc2200'},
+  };
+  Object.keys(se).forEach(k => {
+    if (!badges[k]) return;
+    const b = badges[k];
+    const div = document.createElement('div');
+    div.className = 'se-badge';
+    div.style.cssText = `color:${b.color};border-color:${b.border};background:rgba(0,0,0,0.6);`;
+    const secs = Math.ceil(se[k].dur/60);
+    div.textContent = `${b.label} ${secs}s`;
+    el.appendChild(div);
+  });
+  if (player.totemActive) {
+    const div = document.createElement('div');
+    div.className = 'se-badge';
+    div.style.cssText = 'color:#ffd700;border-color:#cc9900;background:rgba(0,0,0,0.6);';
+    div.textContent = '🗿 TOTEM';
+    el.appendChild(div);
+  }
+}
+
+function updateCombo() {
+  if (comboTimer > 0) {
+    comboTimer--;
+    const el = document.getElementById('combo-display');
+    el.style.display = 'block';
+    if (comboCount > 2) {
+      el.innerHTML = `<div class="combo-num" style="font-size:${2+comboCount*0.2}rem">${comboCount}x</div><div class="combo-label">COMBO</div>`;
+    }
+  } else {
+    comboCount = 0;
+    document.getElementById('combo-display').style.display = 'none';
+  }
+}
+
+function renderHotbar() {
+  if (!player) return;
+  const hb = document.getElementById('hotbar');
+  hb.innerHTML = '';
+  player.items.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = `hslot ${i === player.hotbar ? 'active' : ''}`;
+    const cd = player.cooldowns.melee && i === player.hotbar ? player.cooldowns.melee : 0;
+    const countStr = item.count > 1 ? `<div style="position:absolute;bottom:2px;right:3px;font-size:9px;color:#ffd700;font-weight:700;">${item.count}</div>` : '';
+    const cdOverlay = cd > 0 ? `<div class="hcooldown">${(cd/20).toFixed(1)}</div>` : '';
+    const bow = item.id==='bow'&&player.isBowCharging ? `<div class="hcooldown" style="background:rgba(255,140,0,0.7);">${Math.floor(player.bowCharge/60*100)}%</div>` : '';
+    div.innerHTML = `<div class="hkey">${i+1}</div><div class="hicon">${item.icon}</div><div class="hname">${item.name}</div>${countStr}${cdOverlay}${bow}`;
+    div.onclick = () => { player.hotbar = i; renderHotbar(); };
+    hb.appendChild(div);
+  });
+}
+
+function killFeed(msg, color='#e8e0d0') {
+  const el = document.getElementById('killfeed');
+  const entry = document.createElement('div');
+  entry.className = 'kf-entry';
+  entry.style.borderColor = color;
+  entry.style.color = color;
+  entry.textContent = msg;
+  el.appendChild(entry);
+  if (el.children.length > 6) el.removeChild(el.firstChild);
+  setTimeout(() => entry.remove(), 3000);
+}
+
+// ---- RESULTS ----
+function handleVictory() {
+  gameActive = false;
+  showResults(true);
+}
+function handleDefeat() {
+  gameActive = false;
+  showResults(false);
+}
+function endGame() {
+  gameActive = false;
+  if (gameLoop) cancelAnimationFrame(gameLoop);
+  showScreen('menu-screen');
+}
+
+function showResults(win) {
+  if (gameLoop) cancelAnimationFrame(gameLoop);
+  const elapsed = Math.floor((Date.now()-startTime)/1000);
+  const mins = Math.floor(elapsed/60), secs = elapsed%60;
+  document.getElementById('result-title').textContent = win ? '⚔ VICTORY' : '☠ DEFEATED';
+  document.getElementById('result-title').className = 'result-title ' + (win?'win':'loss');
+  document.getElementById('result-sub').textContent = win ? `You dismantled ${gameState.difficulty.toUpperCase()} bots in ${mins}:${String(secs).padStart(2,'0')}` : `The bots got you in ${mins}:${String(secs).padStart(2,'0')}`;
+  document.getElementById('result-stats').innerHTML = `
+    <div class="stat-item"><div class="stat-val">${playerKills}</div><div class="stat-label">Kills</div></div>
+    <div class="stat-item"><div class="stat-val">${playerDeaths}</div><div class="stat-label">Deaths</div></div>
+    <div class="stat-item"><div class="stat-val">${totalDamageDealt.toFixed(0)}</div><div class="stat-label">Damage Dealt</div></div>
+    <div class="stat-item"><div class="stat-val">${comboCount > 0 ? comboCount : '—'}</div><div class="stat-label">Max Combo</div></div>
+  `;
+  showScreen('result-screen');
+}
+
+// ---- ARENA INIT ----
+const origInitGame = initGame;
+function initGame() {
+  buildArena();
+  origInitGame();
+  killFeed(`Kit: ${gameState.kitName} | ${getModeLabel()}`, '#4a9eff');
+  killFeed('WASD: Move | Click: Attack | Shift: Block | 1-9: Items', '#888');
+}
+// Override
+window.initGame = initGame;
+</script>
+</body>
+</html>
